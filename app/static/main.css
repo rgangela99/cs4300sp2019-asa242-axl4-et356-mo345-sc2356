@@ -35,4 +35,32 @@ border: none
 }
 .step-links a{
 color: #4285F4;
+}.search_bar{
+  display:inline-block;
+  vertical-align: middle;
+}
+.result_item{
+  background-color: White;
+  width: 85%;
+  margin-top: 10px;
+  padding: 10px;
+}
+#logo{
+  display:block;
+  margin:0 auto;
+  text-align:center;
+  align-self: center;
+  vertical-align: baseline;
+  height:200px;
+}
+#input_article{
+  width:100px;
+}
+#input_video{
+  display:inline-block;
+  width:100px;
+}
+#results_area{
+  background-color: Gainsboro;
+  margin: 10px;
 }

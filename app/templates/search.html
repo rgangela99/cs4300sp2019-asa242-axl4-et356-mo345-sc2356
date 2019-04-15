@@ -12,30 +12,27 @@
             (mo345), Sourabh Chakraborty (sc2356)</p>
     </div>
     <form class="form-inline global-search">
-        <h1 style="font-size: 55px; font-family:Futura; color: #4285F4">
-            C
-            <font color=#EA4335>S</font>
-            <font color=#FBBC05>4</font>
-            3
-            <font color=#34A853>0</font>
-            <font color=#EA4335>0</font>
-        </h1>
-
-        <br><br>
-
-        <div class="form-group">
-            <input id="input" type="text" name="search" class="form-control" placeholder="Your Input">
-        </div>
-        <button type="submit" class="btn btn-info"> Go! </button>
+        <img src="/static/media-flip-logo-hw2.png" id="logo" height="100">
     </form>
     <form class="form-inline global-search">
+        <div class="form-group">
+            Enter an article you like:
+            <input id="input_article" type="text" name="input_article_url" class="search_bar" placeholder="Article URL" width=100px>
+            ... or a video!
+            <input id="input_video" type="text" name="input_video_url" class="search_bar" placeholder="Video URL" width=100px>
+        </div>
+        <button type="submit" class="btn btn-info"> Search </button>
+    </form>
+    <form class="form-inline global-search">
+      <div id="results_area">
         {% if data %}
         <h1>{{output_message}}</h1>
         {% for d in data %}
         <br>
-        <p>{{d}}</p>
+        <p class="result_item">{{d}}</p>
         {% endfor %}
         {% endif %}
+      </div>
     </form>
 </body>
 

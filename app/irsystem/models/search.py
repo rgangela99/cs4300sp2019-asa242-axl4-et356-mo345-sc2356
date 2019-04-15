@@ -35,7 +35,7 @@ i=0
 for youtube in data2:
     yt_index_to_id[i]=youtube['id']
     yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
-    yt_id_to_title[youtube['id']]=youtube["title"]
+    yt_id_to_title[youtube['id']]=youtube["snippet"]["title"]
     i+=1
 
 
@@ -125,8 +125,8 @@ def youtubeSearch(query):
 		sims = cosine_sim(query_vec,yt_doc_by_vocab)
 		return_arr= []
 		for i in range(0,5):
-            return_arr.append((yt_id_to_title[np.argmax(sims)],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
-            sims[np.argmax(sims)]=0
+			return_arr.append((yt_id_to_title[np.argmax(sims)],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
+			sims[np.argmax(sims)]=0
 		return return_arr
 	except:
 		return ["This is not a recognized Medium article link"]

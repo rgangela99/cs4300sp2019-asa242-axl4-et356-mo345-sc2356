@@ -2,6 +2,7 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 from app.irsystem.models.search import mediumSearch
+from app.irsystem.models.search import youtubeSearch
 
 project_name = "Ilan's Cool Project Template"
 net_id = "Ilan Filonenko: if56"

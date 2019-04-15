@@ -6,11 +6,6 @@
 </head>
 
 <body>
-    <div class="topcorner">
-        <p>Project Name: LearnMore</p>
-        <p>Student Names: Anjelika Lynne Amog (asa242), Angela Liu (axl4), Emily Tentarelli (et356), Michelle O'Bryan
-            (mo345), Sourabh Chakraborty (sc2356)</p>
-    </div>
     <form class="form-inline global-search">
         <img src="/static/media-flip-logo-hw2.png" id="logo" height="100">
     </form>
@@ -29,11 +24,16 @@
         <h1>{{output_message}}</h1>
         {% for d in data %}
         <br>
-        <p class="result_item">{{d}}</p>
+        <a class="result_item" href="{{d[1]}}">{{d[0]}}</a>
         {% endfor %}
         {% endif %}
       </div>
     </form>
+    <div class="bottom-info-bar">
+        <p>Project Name: LearnMore</p>
+        <p>Student Names: Anjelika Lynne Amog (asa242), Angela Liu (axl4), Emily Tentarelli (et356), Michelle O'Bryan
+            (mo345), Sourabh Chakraborty (sc2356)</p>
+    </div>
 </body>
 
 </html>

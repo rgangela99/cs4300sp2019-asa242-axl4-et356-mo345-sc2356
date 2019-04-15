@@ -19,6 +19,7 @@ Flask-SocketIO==3.3.2
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
 gevent==1.4.0
+google-api-python-client
 greenlet==0.4.15
 gunicorn==19.9.0
 hiredis==1.0.0

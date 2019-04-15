@@ -35,7 +35,7 @@ i=0
 for youtube in data2:
     yt_index_to_id[i]=youtube['id']
     yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
-	yt_id_to_title[youtube['id']]=youtube["title"]
+    yt_id_to_title[youtube['id']]=youtube["title"]
     i+=1
 
 
@@ -68,8 +68,8 @@ def url_to_id(url):
         and_idx = vid_id.find('&')
 
         if and_idx != -1:
-            vid_id = vid_id[:and_idx] 
-        
+            vid_id = vid_id[:and_idx]
+
         return vid_id
     else:
         return ''
@@ -85,12 +85,12 @@ def get_video_info(vids):
 
     youtube = googleapiclient.discovery.build(
         api_service_name, api_version, developerKey = DEVELOPER_KEY)
-    
+
     id_string = ""
-    
+
     for i in range(len(vids) - 1):
         id_string += vids[i] + ","
-    
+
     id_string += vids[-1]
 
     request = youtube.videos().list(
@@ -125,20 +125,17 @@ def youtubeSearch(query):
 		sims = cosine_sim(query_vec,yt_doc_by_vocab)
 		return_arr= []
 		for i in range(0,5):
-			return_arr.append((yt_id_to_title[np.argmax(sims)],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
-			sims[np.argmax(sims)]=0
+            return_arr.append((yt_id_to_title[np.argmax(sims)],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
+            sims[np.argmax(sims)]=0
 		return return_arr
 	except:
 		return ["This is not a recognized Medium article link"]
 
-	
 
 
-def getLink(query):    
+
+def getLink(query):
     if(query == ""):
         return 0
     else:
         return mediumSearch(query)
-
-
-

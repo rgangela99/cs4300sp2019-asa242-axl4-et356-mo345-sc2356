@@ -15,7 +15,7 @@ def search():
 		output_message = ''
 	elif query_article:
 		output_message = "Your search: " + query_article
-		data = ["searching by article not yet supported"]
+		data = youtubeSearch(query_article)
 	else:
 		output_message = "Your search: " + query_video
 		data = mediumSearch(query_video)

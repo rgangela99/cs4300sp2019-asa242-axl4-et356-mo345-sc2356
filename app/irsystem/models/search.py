@@ -4,6 +4,10 @@ from nltk.tokenize import TreebankWordTokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import os
+import googleapiclient.discovery
+API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
+
 
 tokenizer = TreebankWordTokenizer()
 def tokenize(text):
@@ -30,16 +34,6 @@ tfidf_vec = build_vectorizer(n_feats, "english")
 doc_by_vocab = tfidf_vec.fit_transform([d['text'] for d in data]).toarray()
 index_to_vocab = {i:v for i, v in enumerate(tfidf_vec.get_feature_names())}
 
-def mediumSearch(query):
-	query_vec = tfidf_vec.transform([query]).toarray()
-	sims = cosine_sim(query_vec,doc_by_vocab)
-	return_arr= []
-	for i in range(0,5):
-		return_arr.append(data[np.argmax(sims)]["title"])
-		sims[np.argmax(sims)]=0
-	return return_arr
-
-
 def cosine_sim(vec1,doc_by_vocab):
     sims = []
     i=0
@@ -49,6 +43,68 @@ def cosine_sim(vec1,doc_by_vocab):
         else:
             sims.append(np.dot(vec1,doc)/(np.linalg.norm(vec1)*np.linalg.norm(doc)))
     return sims
+
+
+def url_to_id(url):
+    if '?v=' in url:
+        vid_id = url.split('?v=')[1]
+        and_idx = vid_id.find('&')
+
+        if and_idx != -1:
+            vid_id = vid_id[:and_idx] 
+        
+        return vid_id
+    else:
+        return ''
+
+def get_video_info(vids):
+    # Disable OAuthlib's HTTPS verification when running locally.
+    # *DO NOT* leave this option enabled in production.
+#     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+    api_service_name = "youtube"
+    api_version = "v3"
+    DEVELOPER_KEY = API_KEY
+
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, developerKey = DEVELOPER_KEY)
+    
+    id_string = ""
+    
+    for i in range(len(vids) - 1):
+        id_string += vids[i] + ","
+    
+    id_string += vids[-1]
+
+    request = youtube.videos().list(
+        part="snippet,contentDetails,statistics",
+        id=id_string
+    )
+    response = request.execute()
+
+    return response
+
+def get_single_video(vid_id):
+    return get_video_info([vid_id])
+
+def mediumSearch(query):
+	vid_id = url_to_id(query)
+	api_response = get_single_video(vid_id)
+	my_video_info = api_response['items'][0]
+	my_title = my_video_info['snippet']['title']
+	query_vec = tfidf_vec.transform([my_title]).toarray()
+	sims = cosine_sim(query_vec,doc_by_vocab)
+	return_arr= []
+	for i in range(0,5):
+		return_arr.append(data[np.argmax(sims)]["title"])
+		sims[np.argmax(sims)]=0
+	return return_arr
+
+
+
+
+
+
 
 def getLink(query):    
     if(query == ""):

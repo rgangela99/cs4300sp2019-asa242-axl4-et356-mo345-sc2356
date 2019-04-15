@@ -1,39 +1,41 @@
 <html>
 
 <head>
+    <title>{{name}}</title>
     <link rel="stylesheet" href="/static/bootstrap.min.css">
     <link rel="stylesheet" href="/static/main.css">
 </head>
 
 <body>
     <form class="form-inline global-search">
-        <img src="/static/media-flip-logo-hw2.png" id="logo" height="100">
+        <img src="/static/app-logo1.png" id="logo">
     </form>
     <form class="form-inline global-search">
         <div class="form-group">
             Enter an article you like:
-            <input id="input_article" type="text" name="input_article_url" class="search_bar" placeholder="Article URL" width=100px>
+            <input id="input_article" type="text" name="input_article_url" class="search_bar" placeholder="Article URL"
+                width=100px>
             ... or a video!
-            <input id="input_video" type="text" name="input_video_url" class="search_bar" placeholder="Video URL" width=100px>
+            <input id="input_video" type="text" name="input_video_url" class="search_bar" placeholder="Video URL"
+                width=100px>
         </div>
         <button type="submit" class="btn btn-info"> Search </button>
     </form>
     <form class="form-inline global-search">
-      <div id="results_area">
-        {% if data %}
-        <h1>{{output_message}}</h1>
-        {% for d in data %}
-        <br>
-        <a class="result_item" href="{{d[1]}}">{{d[0]}}</a>
-        {% endfor %}
-        {% endif %}
-      </div>
+        <div id="results_area">
+            {% if data %}
+            <h1>{{output_message}}</h1>
+            {% for d in data %}
+            <br>
+            <a class="result_item" href="{{d[1]}}">{{d[0]}}</a>
+            {% endfor %}
+            {% endif %}
+        </div>
     </form>
-    <div class="bottom-info-bar">
-        <p>Project Name: LearnMore</p>
-        <p>Student Names: Anjelika Lynne Amog (asa242), Angela Liu (axl4), Emily Tentarelli (et356), Michelle O'Bryan
-            (mo345), Sourabh Chakraborty (sc2356)</p>
-    </div>
 </body>
+
+<footer>
+    Student Names: {{netid}}
+</footer>
 
 </html>

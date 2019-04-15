@@ -54,7 +54,7 @@ color: #4285F4;
   text-align:center;
   align-self: center;
   vertical-align: baseline;
-  height:200px;
+  height:300px;
 }
 #input_article{
   width:100px;
@@ -66,4 +66,12 @@ color: #4285F4;
 #results_area{
   background-color: Gainsboro;
   margin: 10px;
+}
+footer {
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
 }

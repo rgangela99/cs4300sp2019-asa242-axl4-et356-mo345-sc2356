@@ -4,8 +4,8 @@ from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 from app.irsystem.models.search import mediumSearch
 from app.irsystem.models.search import youtubeSearch
 
-project_name = "Ilan's Cool Project Template"
-net_id = "Ilan Filonenko: if56"
+project_name = "MediaFlip"
+net_id = "Anjelika Lynne Amog (asa242), Angela Liu (axl4), Emily Tentarelli (et356), Michelle O'Bryan (mo345), Sourabh Chakraborty (sc2356)"
 
 @irsystem.route('/', methods=['GET'])
 def search():

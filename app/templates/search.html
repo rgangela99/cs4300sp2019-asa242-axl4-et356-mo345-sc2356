@@ -17,7 +17,7 @@
     <form class="form-inline global-search">
         <div class="form-group">
             Enter an article you like:
-            <input id="input_article" type="text" name="search" class="search_bar" placeholder="Article URL" width=100px>
+            <input id="input_article" type="text" name="input_article_url" class="search_bar" placeholder="Article URL" width=100px>
             ... or a video!
             <input id="input_video" type="text" name="input_video_url" class="search_bar" placeholder="Video URL" width=100px>
         </div>
@@ -31,10 +31,6 @@
         <br>
         <p class="result_item">{{d}}</p>
         {% endfor %}
-        {% endif %}
-	      {% if output_video_message %}
-        <br>
-	      <h1>{{output_video_message}}</h1>
         {% endif %}
       </div>
     </form>

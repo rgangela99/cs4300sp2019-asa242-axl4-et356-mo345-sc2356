@@ -41,7 +41,8 @@ color: #4285F4;
 }
 .result_item{
   background-color: White;
-  margin: 20px;
+  width: 85%;
+  margin-top: 10px;
   padding: 10px;
 }
 #logo{
@@ -60,6 +61,6 @@ color: #4285F4;
   width:100px;
 }
 #results_area{
-  background-color: LightSteelBlue;
+  background-color: Gainsboro;
   margin: 10px;
 }

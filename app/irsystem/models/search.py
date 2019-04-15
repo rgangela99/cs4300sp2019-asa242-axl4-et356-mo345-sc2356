@@ -16,13 +16,26 @@ def tokenize(text):
 
 title_to_text={}
 title_to_index={}
-with open('./data/medium/medium-data-small.json') as f:
+link_to_index={}
+with open('./data/medium/medium-data-deduped.json') as f:
     data = json.load(f)
 i=0
 for medium in data:
     title_to_index[medium["title"]]=i
     title_to_text[medium["title"]] = tokenize(medium["text"])
+    link_to_index[medium["link"]]=i
     i+=1
+
+yt_index_to_id={}
+yt_id_to_text={}
+with open('./data/reddit/youtube_video_data.json') as f:
+    data2 = json.load(f)
+i=0
+for youtube in data2:
+    yt_index_to_id[i]=youtube['id']
+    yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
+    i+=1
+
 
 n_feats = 5000
 doc_by_vocab = np.empty([len(data), n_feats])
@@ -32,6 +45,8 @@ def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2')
 
 tfidf_vec = build_vectorizer(n_feats, "english")
 doc_by_vocab = tfidf_vec.fit_transform([d['text'] for d in data]).toarray()
+tfidf_vec2 = build_vectorizer(n_feats, "english")
+yt_doc_by_vocab = tfidf_vec2.fit_transform([d["snippet"]['description'] for d in data2]).toarray()
 index_to_vocab = {i:v for i, v in enumerate(tfidf_vec.get_feature_names())}
 
 def cosine_sim(vec1,doc_by_vocab):
@@ -100,10 +115,21 @@ def mediumSearch(query):
 		sims[np.argmax(sims)]=0
 	return return_arr
 
+def youtubeSearch(query):
+	try:
+		article = link_to_index[medium["link"]]
+		text = data[article]["text"]
+		query_vec = tfidf_vec2.transform([text]).toarray()
+		sims = cosine_sim(query_vec,yt_doc_by_vocab)
+		return_arr= []
+		for i in range(0,5):
+			return_arr.append("https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)])
+			sims[np.argmax(sims)]=0
+		return return_arr
+	except:
+		return ["This is not a recognized Medium article link"]
 
-
-
-
+	
 
 
 def getLink(query):    

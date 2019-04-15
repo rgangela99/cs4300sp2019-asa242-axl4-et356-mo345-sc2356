@@ -119,17 +119,18 @@ def mediumSearch(query):
 
 def youtubeSearch(query):
 	try:
-		article = link_to_index[medium["link"]]
+		article = link_to_index[query]
 		text = data[article]["text"]
 		query_vec = tfidf_vec2.transform([text]).toarray()
 		sims = cosine_sim(query_vec,yt_doc_by_vocab)
 		return_arr= []
 		for i in range(0,5):
-			return_arr.append((yt_id_to_title[np.argmax(sims)],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
+			return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
 			sims[np.argmax(sims)]=0
 		return return_arr
 	except:
-		return ["This is not a recognized Medium article link"]
+
+		return [("Exception","")]
 
 
 

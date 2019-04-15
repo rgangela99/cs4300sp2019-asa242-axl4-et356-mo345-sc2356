@@ -28,12 +28,14 @@ for medium in data:
 
 yt_index_to_id={}
 yt_id_to_text={}
+yt_id_to_title={}
 with open('./data/reddit/youtube_video_data.json') as f:
     data2 = json.load(f)
 i=0
 for youtube in data2:
     yt_index_to_id[i]=youtube['id']
     yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
+	yt_id_to_title[youtube['id']]=youtube["title"]
     i+=1
 
 
@@ -111,7 +113,7 @@ def mediumSearch(query):
 	sims = cosine_sim(query_vec,doc_by_vocab)
 	return_arr= []
 	for i in range(0,5):
-		return_arr.append(data[np.argmax(sims)]["title"])
+		return_arr.append((data[np.argmax(sims)]["title"],data[np.argmax(sims)]["link"]))
 		sims[np.argmax(sims)]=0
 	return return_arr
 
@@ -123,7 +125,7 @@ def youtubeSearch(query):
 		sims = cosine_sim(query_vec,yt_doc_by_vocab)
 		return_arr= []
 		for i in range(0,5):
-			return_arr.append("https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)])
+			return_arr.append((yt_id_to_title[np.argmax(sims)],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
 			sims[np.argmax(sims)]=0
 		return return_arr
 	except:

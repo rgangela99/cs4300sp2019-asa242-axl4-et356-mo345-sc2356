@@ -53,7 +53,7 @@ for youtube in yt_data:
     if 'statistics' in youtube.keys():
         if 'likeCount' in youtube['statistics'].keys():
             yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
-    data.append(youtube["snippet"]["description"])
+    data.append(youtube["snippet"]["title"])
     i+=1
 
 #maximum number of features to train the vectorizer
@@ -144,11 +144,11 @@ def mediumSearch(query):
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
-    # my_title = my_video_info['snippet']['title']
-    # query_vec = tfidf_vec.transform([my_title]).toarray()
+    my_title = my_video_info['snippet']['title']
+    query_vec = tfidf_vec.transform([my_title]).toarray()
     #demonstrating video description
-    vid_desc = my_video_info['snippet']['description']
-    query_vec = tfidf_vec.transform([vid_desc]).toarray()
+    # vid_desc = my_video_info['snippet']['description']
+    # query_vec = tfidf_vec.transform([vid_desc]).toarray()
     sims = cosine_sim(query_vec,medium_articles_by_vocab)
     return_arr = []
     sort_idx = np.argsort(sims)

@@ -5,52 +5,69 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import os
+#for YouTube video scraping
 import googleapiclient.discovery
 API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
 
-
+#general purpose tokenizer for text input
 tokenizer = TreebankWordTokenizer()
 def tokenize(text):
     text= text.lower()
     return tokenizer.tokenize(text)
 
+#building data array of both article text and video description text 
+#to train the vectorizer
+data = []
+
+#dictionaries for referencing the Medium article data set
 title_to_text={}
 title_to_index={}
 link_to_index={}
 with open('./data/medium/medium-data-deduped.json') as f:
-    data = json.load(f)
+    medium_data = json.load(f)
 i=0
-for medium in data:
-    title_to_index[medium["title"]]=i
-    title_to_text[medium["title"]] = tokenize(medium["text"])
-    link_to_index[medium["link"]]=i
+for article in medium_data:
+    title_to_index[article["title"]]=i
+    title_to_text[article["title"]] = tokenize(article["text"])
+    link_to_index[article["link"]]=i
+    data.append(article["text"])
     i+=1
 
+#dictionaries for referencing the YouTube videos data set
 yt_index_to_id={}
 yt_id_to_text={}
 yt_id_to_title={}
 with open('./data/reddit/youtube_video_data.json') as f:
-    data2 = json.load(f)
+    yt_data = json.load(f)
 i=0
-for youtube in data2:
+for youtube in yt_data:
     yt_index_to_id[i]=youtube['id']
     yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
     yt_id_to_title[youtube['id']]=youtube["snippet"]["title"]
+    data.append(youtube["snippet"]["description"])
     i+=1
 
-
+#maximum number of features to train the vectorizer
 n_feats = 5000
-doc_by_vocab = np.empty([len(data), n_feats])
+medium_articles_by_vocab = np.empty([len(medium_data), n_feats])
+yt_vids_by_vocab = np.empty([len(yt_data), n_feats])
+# doc_by_vocab = np.empty([len(data), n_feats])
 
 def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2'):
     return TfidfVectorizer(stop_words=stop_words, max_df=max_df, min_df=min_df,max_features=max_features, norm=norm)
 
+#building vectorizer to train
 tfidf_vec = build_vectorizer(n_feats, "english")
-doc_by_vocab = tfidf_vec.fit_transform([d['text'] for d in data]).toarray()
-tfidf_vec2 = build_vectorizer(n_feats, "english")
-yt_doc_by_vocab = tfidf_vec2.fit_transform([d["snippet"]['description'] for d in data2]).toarray()
+tfidf_vec.fit(d for d in data)
+medium_articles_by_vocab = tfidf_vec.transform(art["text"] for art in medium_data).toarray()
+yt_vids_by_vocab = tfidf_vec.transform(vid["snippet"]["description"] for vid in yt_data).toarray()
+# doc_by_vocab = tfidf_vec.fit_transform([d['text'] for d in data]).toarray()
+# tfidf_vec2 = build_vectorizer(n_feats, "english")
+# yt_doc_by_vocab = tfidf_vec2.fit_transform([d["snippet"]['description'] for d in data2]).toarray()
 index_to_vocab = {i:v for i, v in enumerate(tfidf_vec.get_feature_names())}
 
+#returns list of cosine similarities of query vector with every document in provided
+#tf-idf matrix [doc_by_vocab]
 def cosine_sim(vec1,doc_by_vocab):
     sims = []
     i=0
@@ -61,7 +78,7 @@ def cosine_sim(vec1,doc_by_vocab):
             sims.append(np.dot(vec1,doc)/(np.linalg.norm(vec1)*np.linalg.norm(doc)))
     return sims
 
-
+#YouTube video scraping
 def url_to_id(url):
     if '?v=' in url:
         vid_id = url.split('?v=')[1]
@@ -104,36 +121,42 @@ def get_video_info(vids):
 def get_single_video(vid_id):
     return get_video_info([vid_id])
 
+#search function from YouTube video to Medium article
 def mediumSearch(query):
-	vid_id = url_to_id(query)
-	api_response = get_single_video(vid_id)
-	my_video_info = api_response['items'][0]
-	my_title = my_video_info['snippet']['title']
-	query_vec = tfidf_vec.transform([my_title]).toarray()
-	sims = cosine_sim(query_vec,doc_by_vocab)
-	return_arr= []
-	for i in range(0,5):
-		return_arr.append((data[np.argmax(sims)]["title"],data[np.argmax(sims)]["link"]))
-		sims[np.argmax(sims)]=0
-	return return_arr
+    vid_id = url_to_id(query)
+    api_response = get_single_video(vid_id)
+    my_video_info = api_response['items'][0]
+    my_title = my_video_info['snippet']['title']
+    query_vec = tfidf_vec.transform([my_title]).toarray()
+    sims = cosine_sim(query_vec,medium_articles_by_vocab)
+    return_arr = []
+    sort_idx = np.argsort(sims)
+    for i in range(0,5):
+        # article = medium_data[sort_idx[i]]
+        # return_arr.append((article["title"], article["link"]))
+        # return_arr.append((data[np.argmax(sims)]["title"],data[np.argmax(sims)]["link"]))
+        # sims[np.argmax(sims)]=0
+        return_arr.append((medium_data[np.argmax(sims)]["title"],medium_data[np.argmax(sims)]["link"]))
+        sims[np.argmax(sims)]=0
+    return return_arr
 
+#search function from Medium article to YouTube video
 def youtubeSearch(query):
-	try:
-		article = link_to_index[query]
-		text = data[article]["text"]
-		query_vec = tfidf_vec2.transform([text]).toarray()
-		sims = cosine_sim(query_vec,yt_doc_by_vocab)
-		return_arr= []
-		for i in range(0,5):
-			return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
-			sims[np.argmax(sims)]=0
-		return return_arr
-	except:
-
-		return [("Exception","")]
-
-
-
+    try:
+        article = link_to_index[query]
+        text = medium_data[article]["text"]
+        query_vec = tfidf_vec.transform([text]).toarray()
+        sims = cosine_sim(query_vec,yt_vids_by_vocab)
+        return_arr= []
+        sort_idx = np.argsort(sims)
+        for i in range(0,5):
+            # video = yt_index_to_id[sort_idx[i]]
+            # return_arr.append((yt_id_to_title[video], "https://www.youtube.com/watch?v="+video))
+            return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
+            sims[np.argmax(sims)]=0
+            return return_arr
+    except:
+        return [("This is not a recognized Medium article link","")]
 
 def getLink(query):
     if(query == ""):

@@ -191,7 +191,7 @@ def youtubeSearch(query):
             id_arr.append(yt_index_to_id[np.argmax(sims)])
             sims[np.argmax(sims)]=0
         
-        like_arr = [yt_id_to_likes[i] for i in in_arr]
+        like_arr = [yt_id_to_likes[i] for i in id_arr]
         like_return_arr=[]
         for k in range(0,5):
             like_return_arr.append(return_arr[np.argmax(like_arr)])

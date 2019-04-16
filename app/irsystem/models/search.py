@@ -7,6 +7,9 @@ import numpy as np
 import os
 #for YouTube video scraping
 import googleapiclient.discovery
+import urllib3
+from bs4 import BeautifulSoup
+import requests
 API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
 
 #general purpose tokenizer for text input
@@ -162,8 +165,14 @@ def mediumSearch(query):
 #search function from Medium article to YouTube video
 def youtubeSearch(query):
     try:
-        article = link_to_index[query]
-        text = medium_data[article]["text"]
+        data = requests.get(link)
+        soup = BeautifulSoup(data.content, 'html.parser')
+        paras = soup.findAll('p')
+        text = ''
+        nxt_line = '\n'
+        for para in paras:
+            text += unicodedata.normalize('NFKD',
+                                            para.get_text()) + nxt_line
         query_vec = tfidf_vec.transform([text]).toarray()
         sims = cosine_sim(query_vec,yt_vids_by_vocab)
         return_arr= []

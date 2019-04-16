@@ -165,7 +165,7 @@ def mediumSearch(query):
 #search function from Medium article to YouTube video
 def youtubeSearch(query):
     try:
-        data = requests.get(link)
+        data = requests.get(query)
         soup = BeautifulSoup(data.content, 'html.parser')
         paras = soup.findAll('p')
         text = ''

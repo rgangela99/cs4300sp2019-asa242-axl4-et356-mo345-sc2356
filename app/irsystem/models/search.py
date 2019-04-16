@@ -194,6 +194,7 @@ def youtubeSearch(query):
         sims = cosine_sim(query_vec,yt_vids_by_vocab)
         return_arr= []
         sort_idx = np.argsort(sims)
+        id_arr = []
 
         for i in range(0,5):
             return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))

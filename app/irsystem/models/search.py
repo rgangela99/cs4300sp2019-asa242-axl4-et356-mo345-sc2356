@@ -121,6 +121,15 @@ def get_video_info(vids):
 def get_single_video(vid_id):
     return get_video_info([vid_id])
 
+def claps_to_nums(claps):
+	num=claps.split()[0]
+	if "K" in num:
+		num=num[:-1]
+		num=int(num)*100
+	else:
+		num=int(num)
+	return num
+
 #search function from YouTube video to Medium article
 def mediumSearch(query):
     vid_id = url_to_id(query)
@@ -138,7 +147,17 @@ def mediumSearch(query):
         # sims[np.argmax(sims)]=0
         return_arr.append((medium_data[np.argmax(sims)]["title"],medium_data[np.argmax(sims)]["link"]))
         sims[np.argmax(sims)]=0
-    return return_arr
+    clap_arr = []
+    for j in range(0,5):
+    	art_index = title_to_index[return_arr[j][0]]
+    	claps=medium_data[art_index]["claps"]
+    	claps_to_nums(claps)
+    	clap_arr.append(claps_to_nums(claps))
+    clap_return_arr=[]
+    for k in range(0,5):
+    	clap_return_arr.append(return_arr[np.argmax(clap_arr)])
+    	clap_arr[np.argmax(clap_arr)]=0
+    return clap_return_arr
 
 #search function from Medium article to YouTube video
 def youtubeSearch(query):

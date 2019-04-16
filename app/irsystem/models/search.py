@@ -10,6 +10,7 @@ import googleapiclient.discovery
 import urllib3
 from bs4 import BeautifulSoup
 import requests
+import unicodedata
 API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
 
 #general purpose tokenizer for text input

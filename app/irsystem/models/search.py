@@ -129,7 +129,7 @@ def claps_to_nums(claps):
 	num=claps.split()[0]
 	if "K" in num:
 		num=num[:-1]
-		num=int(num)*100
+		num=int(num)*1000
 	else:
 		num=int(num)
 	return num
@@ -139,8 +139,11 @@ def mediumSearch(query):
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
-    my_title = my_video_info['snippet']['title']
-    query_vec = tfidf_vec.transform([my_title]).toarray()
+    # my_title = my_video_info['snippet']['title']
+    # query_vec = tfidf_vec.transform([my_title]).toarray()
+    #demonstrating video description
+    vid_desc = my_video_info['snippet']['description']
+    query_vec = tfidf_vec.transform([vid_desc]).toarray()
     sims = cosine_sim(query_vec,medium_articles_by_vocab)
     return_arr = []
     sort_idx = np.argsort(sims)

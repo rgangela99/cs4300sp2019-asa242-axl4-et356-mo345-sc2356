@@ -7,6 +7,10 @@ import numpy as np
 import os
 #for YouTube video scraping
 import googleapiclient.discovery
+import urllib3
+from bs4 import BeautifulSoup
+import requests
+import unicodedata
 API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
 
 #general purpose tokenizer for text input
@@ -121,6 +125,15 @@ def get_video_info(vids):
 def get_single_video(vid_id):
     return get_video_info([vid_id])
 
+def claps_to_nums(claps):
+	num=claps.split()[0]
+	if "K" in num:
+		num=num[:-1]
+		num=int(num)*100
+	else:
+		num=int(num)
+	return num
+
 #search function from YouTube video to Medium article
 def mediumSearch(query):
     vid_id = url_to_id(query)
@@ -136,13 +149,29 @@ def mediumSearch(query):
         # return_arr.append((article["title"], article["link"]))
         return_arr.append((medium_data[np.argmax(sims)]["title"],medium_data[np.argmax(sims)]["link"]))
         sims[np.argmax(sims)]=0
-    return return_arr
+    clap_arr = []
+    for j in range(0,5):
+    	art_index = title_to_index[return_arr[j][0]]
+    	claps=medium_data[art_index]["claps"]
+    	claps_to_nums(claps)
+    	clap_arr.append(claps_to_nums(claps))
+    clap_return_arr=[]
+    for k in range(0,5):
+    	clap_return_arr.append(return_arr[np.argmax(clap_arr)])
+    	clap_arr[np.argmax(clap_arr)]=0
+    return clap_return_arr
 
 #search function from Medium article to YouTube video
 def youtubeSearch(query):
     try:
-        article = link_to_index[query]
-        text = medium_data[article]["text"]
+        data = requests.get(query)
+        soup = BeautifulSoup(data.content, 'html.parser')
+        paras = soup.findAll('p')
+        text = ''
+        nxt_line = '\n'
+        for para in paras:
+            text += unicodedata.normalize('NFKD',
+                                            para.get_text()) + nxt_line
         query_vec = tfidf_vec.transform([text]).toarray()
         sims = cosine_sim(query_vec,yt_vids_by_vocab)
         return_arr= []
@@ -153,7 +182,8 @@ def youtubeSearch(query):
             return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
             sims[np.argmax(sims)]=0
             return return_arr
-    except:
+    except Exception as e:
+        print(e)
         return [("This is not a recognized Medium article link","")]
 
 def getLink(query):

@@ -129,9 +129,9 @@ def claps_to_nums(claps):
 	num=claps.split()[0]
 	if "K" in num:
 		num=num[:-1]
-		num=int(num)*100
+		num=float(num)*1000
 	else:
-		num=int(num)
+		num=float(num)
 	return num
 
 #search function from YouTube video to Medium article

@@ -144,16 +144,17 @@ def mediumSearch(query):
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
-    my_title = my_video_info['snippet']['title']
-    query_vec = tfidf_vec.transform([my_title]).toarray()
+    # my_title = my_video_info['snippet']['title']
+    # query_vec = tfidf_vec.transform([my_title]).toarray()
+    #demonstrating video description
+    vid_desc = my_video_info['snippet']['description']
+    query_vec = tfidf_vec.transform([vid_desc]).toarray()
     sims = cosine_sim(query_vec,medium_articles_by_vocab)
     return_arr = []
     sort_idx = np.argsort(sims)
     for i in range(0,5):
         # article = medium_data[sort_idx[i]]
         # return_arr.append((article["title"], article["link"]))
-        # return_arr.append((data[np.argmax(sims)]["title"],data[np.argmax(sims)]["link"]))
-        # sims[np.argmax(sims)]=0
         return_arr.append((medium_data[np.argmax(sims)]["title"],medium_data[np.argmax(sims)]["link"]))
         sims[np.argmax(sims)]=0
     clap_arr = []

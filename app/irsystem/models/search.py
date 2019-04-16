@@ -134,8 +134,6 @@ def mediumSearch(query):
     for i in range(0,5):
         # article = medium_data[sort_idx[i]]
         # return_arr.append((article["title"], article["link"]))
-        # return_arr.append((data[np.argmax(sims)]["title"],data[np.argmax(sims)]["link"]))
-        # sims[np.argmax(sims)]=0
         return_arr.append((medium_data[np.argmax(sims)]["title"],medium_data[np.argmax(sims)]["link"]))
         sims[np.argmax(sims)]=0
     return return_arr

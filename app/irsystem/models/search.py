@@ -41,7 +41,7 @@ for article in medium_data:
 yt_index_to_id={}
 yt_id_to_text={}
 yt_id_to_title={}
-yt_id_to_index={}
+yt_id_to_likes={}
 with open('./data/reddit/youtube_video_data.json') as f:
     yt_data = json.load(f)
 i=0
@@ -49,7 +49,7 @@ for youtube in yt_data:
     yt_index_to_id[i]=youtube['id']
     yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
     yt_id_to_title[youtube['id']]=youtube["snippet"]["title"]
-    yt_id_to_title[youtube['id']]=youtube["statistics"]["likeCount"]
+    yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
     data.append(youtube["snippet"]["description"])
     i+=1
 

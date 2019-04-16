@@ -183,7 +183,8 @@ def youtubeSearch(query):
             return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
             sims[np.argmax(sims)]=0
             return return_arr
-    except:
+    except Error as e:
+        print(e)
         return [("This is not a recognized Medium article link","")]
 
 def getLink(query):

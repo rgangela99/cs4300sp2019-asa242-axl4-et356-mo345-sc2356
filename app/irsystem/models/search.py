@@ -49,10 +49,10 @@ for youtube in yt_data:
     yt_index_to_id[i]=youtube['id']
     yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
     yt_id_to_title[youtube['id']]=youtube["snippet"]["title"]
-    if 'likeCount' in youtube['statistics'].keys():
-        yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
-    else:
-        yt_id_to_likes[youtube['id']]=0 
+    yt_id_to_likes[youtube['id']]=0 
+    if 'statistics' in youtube.keys():
+        if 'likeCount' in youtube['statistics'].keys():
+            yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
     data.append(youtube["snippet"]["description"])
     i+=1
 

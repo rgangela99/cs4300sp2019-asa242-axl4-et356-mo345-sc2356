@@ -134,11 +134,11 @@ def vid_url_to_title(vid_url):
     return get_single_video(url_to_id(vid_url))['items'][0]['snippet']['title']
 
 def art_url_to_title(art_url):
-    article_index = link_to_index.get(art_url, "")
-    if article_index == "":
-        return ""
-    else:
-        return medium_data[article_index]["title"]
+    data = requests.get(art_url)
+    soup = BeautifulSoup(data.content, 'html.parser')
+    title = soup.findAll('title')[0]
+    title = title.get_text()
+    return title
 
 def claps_to_nums(claps):
 	num=claps.split()[0]

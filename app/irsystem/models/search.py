@@ -178,12 +178,19 @@ def youtubeSearch(query):
         sims = cosine_sim(query_vec,yt_vids_by_vocab)
         return_arr= []
         sort_idx = np.argsort(sims)
+        
         for i in range(0,5):
-            # video = yt_index_to_id[sort_idx[i]]
-            # return_arr.append((yt_id_to_title[video], "https://www.youtube.com/watch?v="+video))
             return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
+            id_arr.append(yt_index_to_id[np.argmax(sims)])
             sims[np.argmax(sims)]=0
-            return return_arr
+        
+        like_arr = [yt_id_to_likes[i] for i in in_arr]
+        like_return_arr=[]
+        for k in range(0,5):
+            like_return_arr.append(return_arr[np.argmax(like_arr)])
+            like_arr[np.argmax(like_arr)]=0
+            
+        return like_return_arr
     except Exception as e:
         print(e)
         return [("This is not a recognized Medium article link","")]

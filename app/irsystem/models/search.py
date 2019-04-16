@@ -19,7 +19,7 @@ def tokenize(text):
     text= text.lower()
     return tokenizer.tokenize(text)
 
-#building data array of both article text and video description text 
+#building data array of both article text and video description text
 #to train the vectorizer
 data = []
 
@@ -52,7 +52,7 @@ for youtube in yt_data:
     if 'likeCount' in youtube['statistics'].keys():
         yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
     else:
-        yt_id_to_likes[youtube['id']]=0 
+        yt_id_to_likes[youtube['id']]=0
     data.append(youtube["snippet"]["description"])
     i+=1
 
@@ -130,6 +130,16 @@ def get_video_info(vids):
 def get_single_video(vid_id):
     return get_video_info([vid_id])
 
+def vid_url_to_title(vid_url):
+    return get_single_video(url_to_id(vid_url))['items'][0]['snippet']['title']
+
+def art_url_to_title(art_url):
+    article_index = link_to_index.get(art_url, "")
+    if article_index == "":
+        return ""
+    else:
+        return medium_data[article_index]["title"]
+
 def claps_to_nums(claps):
 	num=claps.split()[0]
 	if "K" in num:
@@ -184,18 +194,18 @@ def youtubeSearch(query):
         sims = cosine_sim(query_vec,yt_vids_by_vocab)
         return_arr= []
         sort_idx = np.argsort(sims)
-        
+
         for i in range(0,5):
             return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
             id_arr.append(yt_index_to_id[np.argmax(sims)])
             sims[np.argmax(sims)]=0
-        
+
         like_arr = [yt_id_to_likes[i] for i in in_arr]
         like_return_arr=[]
         for k in range(0,5):
             like_return_arr.append(return_arr[np.argmax(like_arr)])
             like_arr[np.argmax(like_arr)]=0
-            
+
         return like_return_arr
     except Exception as e:
         print(e)

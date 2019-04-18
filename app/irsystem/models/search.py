@@ -159,24 +159,28 @@ def mediumSearch(query):
     #demonstrating video description
     # vid_desc = my_video_info['snippet']['description']
     # query_vec = tfidf_vec.transform([vid_desc]).toarray()
-    sims = cosine_sim(query_vec,medium_articles_by_vocab)
+    sims = np.array(cosine_sim(query_vec,medium_articles_by_vocab)).flatten()
     return_arr = []
-    sort_idx = np.argsort(sims)
+    sort_idx = np.flip(np.argsort(sims))
+    
     for i in range(0,5):
-        # article = medium_data[sort_idx[i]]
-        # return_arr.append((article["title"], article["link"]))
-        return_arr.append((medium_data[np.argmax(sims)]["title"],medium_data[np.argmax(sims)]["link"]))
-        sims[np.argmax(sims)]=0
+        article = medium_data[sort_idx[i]]
+        return_arr.append((article["title"], article["link"]))
+#         return_arr.append((medium_data[np.argmax(sims)]["title"],medium_data[np.argmax(sims)]["link"]))
+#         sims[np.argmax(sims)]=0
+    
     clap_arr = []
     for j in range(0,5):
     	art_index = title_to_index[return_arr[j][0]]
     	claps=medium_data[art_index]["claps"]
     	claps_to_nums(claps)
     	clap_arr.append(claps_to_nums(claps))
+    
     clap_return_arr=[]
     for k in range(0,5):
     	clap_return_arr.append(return_arr[np.argmax(clap_arr)])
     	clap_arr[np.argmax(clap_arr)]=0
+    
     return clap_return_arr
 
 #search function from Medium article to YouTube video
@@ -191,15 +195,15 @@ def youtubeSearch(query):
             text += unicodedata.normalize('NFKD',
                                             para.get_text()) + nxt_line
         query_vec = tfidf_vec.transform([text]).toarray()
-        sims = cosine_sim(query_vec,yt_vids_by_vocab)
+        sims = np.array(cosine_sim(query_vec,yt_vids_by_vocab)).flatten()
         return_arr= []
         sort_idx = np.argsort(sims)
         id_arr = []
 
         for i in range(0,5):
-            return_arr.append((yt_id_to_title[yt_index_to_id[np.argmax(sims)]],"https://www.youtube.com/watch?v="+yt_index_to_id[np.argmax(sims)]))
-            id_arr.append(yt_index_to_id[np.argmax(sims)])
-            sims[np.argmax(sims)]=0
+            curr_id = yt_index_to_id[sort_idx[i]]
+            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id))
+            id_arr.append(curr_id)
 
         like_arr = [yt_id_to_likes[i] for i in id_arr]
         like_return_arr=[]

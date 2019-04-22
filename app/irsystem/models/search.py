@@ -27,7 +27,7 @@ data = []
 title_to_text={}
 title_to_index={}
 link_to_index={}
-with open('./data/medium/medium-data-deduped.json') as f:
+with open('./data/medium/medium-data-250-deduped.json') as f:
     medium_data = json.load(f)
 i=0
 for article in medium_data:

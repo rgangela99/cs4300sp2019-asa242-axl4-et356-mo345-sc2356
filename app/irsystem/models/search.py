@@ -141,6 +141,8 @@ def art_url_to_title(art_url):
     return title
 
 def claps_to_nums(claps):
+    if claps == 0:
+        return 0
 	num=claps.split()[0]
 	if "K" in num:
 		num=num[:-1]

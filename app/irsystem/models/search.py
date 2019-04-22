@@ -143,13 +143,13 @@ def art_url_to_title(art_url):
 def claps_to_nums(claps):
     if claps == 0:
         return 0
-	num=claps.split()[0]
-	if "K" in num:
-		num=num[:-1]
-		num=float(num)*1000
-	else:
-		num=float(num)
-	return num
+    num=claps.split()[0]
+    if "K" in num:
+        num=num[:-1]
+        num=float(num)*1000
+    else:
+        num=float(num)
+    return num
 
 #search function from YouTube video to Medium article
 def mediumSearch(query):
@@ -173,15 +173,15 @@ def mediumSearch(query):
     
     clap_arr = []
     for j in range(0,5):
-    	art_index = title_to_index[return_arr[j][0]]
-    	claps=medium_data[art_index]["claps"]
-    	claps_to_nums(claps)
-    	clap_arr.append(claps_to_nums(claps))
+        art_index = title_to_index[return_arr[j][0]]
+        claps=medium_data[art_index]["claps"]
+        claps_to_nums(claps)
+        clap_arr.append(claps_to_nums(claps))
     
     clap_return_arr=[]
     for k in range(0,5):
-    	clap_return_arr.append(return_arr[np.argmax(clap_arr)])
-    	clap_arr[np.argmax(clap_arr)]=0
+        clap_return_arr.append(return_arr[np.argmax(clap_arr)])
+        clap_arr[np.argmax(clap_arr)]=0
     
     return clap_return_arr
 

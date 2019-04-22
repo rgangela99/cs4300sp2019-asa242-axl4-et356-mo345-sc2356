@@ -30,7 +30,7 @@ data = []
 title_to_text={}
 title_to_index={}
 link_to_index={}
-with open('./data/medium/medium-data-deduped.json') as f:
+with open('./data/medium/medium-data-deduped-comments.json') as f:
     medium_data = json.load(f)
 i=0
 for article in medium_data:
@@ -41,6 +41,9 @@ for article in medium_data:
     i+=1
 
 #dictionaries for referencing the YouTube videos data set
+with open('./data/reddit/youtube_comment_data.json') as f:
+    yt_comment_data = json.load(f)
+
 yt_index_to_id={}
 yt_id_to_text={}
 yt_id_to_title={}
@@ -226,7 +229,7 @@ def youtubeSearch(query):
 
         for i in range(0,5):
             curr_id = yt_index_to_id[sort_idx[i]]
-            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id))
+            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id), yt_comment_data[curr_id]["text"],yt_id_to_likes[curr_id])
             id_arr.append(curr_id)
 
         like_arr = [yt_id_to_likes[i] for i in id_arr]

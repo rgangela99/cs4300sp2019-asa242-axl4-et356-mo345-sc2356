@@ -12,6 +12,9 @@ from bs4 import BeautifulSoup
 import requests
 import unicodedata
 API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
+#for SVD
+from scipy.sparse.linalg import svds
+from sklearn.preprocessing import normalize
 
 #general purpose tokenizer for text input
 tokenizer = TreebankWordTokenizer()
@@ -86,6 +89,25 @@ def cosine_sim(vec1,doc_by_vocab):
         else:
             sims.append(np.dot(vec1,doc)/(np.linalg.norm(vec1)*np.linalg.norm(doc)))
     return sims
+
+
+
+def SVD(tf_idf_matrix):
+	svd_matrix = (tf_idf_matrix).transpose()
+	words_compressed, _, docs_compressed = svds(my_matrix, k=40)
+	docs_compressed = docs_compressed.transpose()
+	#words_compressed = normalize(words_compressed, axis = 1)
+	docs_compressed = normalize(docs_compressed, axis = 1)
+	return docs_compressed
+
+def closest_projects(docs_compressed, project_index_in, k = 5):
+    sims = docs_compressed.dot(docs_compressed[project_index_in,:])
+    asort = np.argsort(-sims)[:k+1]
+    return [(documents[i][0],sims[i]/sims[asort[0]]) for i in asort[1:]]
+
+
+
+
 
 #YouTube video scraping
 def url_to_id(url):

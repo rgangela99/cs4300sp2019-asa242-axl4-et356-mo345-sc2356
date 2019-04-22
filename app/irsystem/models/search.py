@@ -30,14 +30,18 @@ data = []
 title_to_text={}
 title_to_index={}
 link_to_index={}
-with open('./data/medium/medium-data-deduped-comments.json') as f:
+with open('./data/medium/deduped-medium-comments.json') as f:
     medium_data = json.load(f)
 i=0
 for article in medium_data:
     title_to_index[article["title"]]=i
     title_to_text[article["title"]] = tokenize(article["text"])
     link_to_index[article["link"]]=i
-    data.append(article["text"])
+    tags=" "
+    if "tags" in article.keys():
+        for tag in article["tags"]:
+            tags=tag+" "
+    data.append(article["text"]+tags)
     i+=1
 
 #dictionaries for referencing the YouTube videos data set
@@ -48,8 +52,12 @@ yt_index_to_id={}
 yt_id_to_text={}
 yt_id_to_title={}
 yt_id_to_likes={}
+yt_id_to_comment={}
 with open('./data/reddit/youtube_video_data.json') as f:
     yt_data = json.load(f)
+for comment in yt_comment_data:
+    yt_id_to_comment[comment["id"]] = comment["text"]
+
 i=0
 for youtube in yt_data:
     yt_index_to_id[i]=youtube['id']
@@ -59,7 +67,13 @@ for youtube in yt_data:
     if 'statistics' in youtube.keys():
         if 'likeCount' in youtube['statistics'].keys():
             yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
-    data.append(youtube["snippet"]["title"])
+    if youtube['id'] not in yt_id_to_comment.keys():
+        yt_id_to_comment[youtube['id']]=""
+    tags=" "
+    if 'tags' in youtube["snippet"].keys():
+        for tag in youtube["snippet"]["tags"]:
+            tags=tag+" "
+    data.append(youtube["snippet"]["title"]+tags)
     i+=1
 
 #maximum number of features to train the vectorizer
@@ -97,7 +111,7 @@ def cosine_sim(vec1,doc_by_vocab):
 
 def SVD(tf_idf_matrix):
     svd_matrix = (tf_idf_matrix).transpose()
-    words_compressed, _, docs_compressed = svds(svd_matrix, k=40)
+    words_compressed, _, docs_compressed = svds(svd_matrix, k=100)
     docs_compressed = docs_compressed.transpose()
     #words_compressed = normalize(words_compressed, axis = 1)
     docs_compressed = normalize(docs_compressed, axis = 1)
@@ -191,7 +205,7 @@ def mediumSearch(query):
 
     for i in range(0,5):
         article = medium_data[sort_idx[i]]
-        return_arr.append((article["title"], article["link"]))
+        return_arr.append((article["title"], article["link"], article["comments"] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"]))))
 
     clap_arr = []
     for j in range(0,5):
@@ -229,7 +243,7 @@ def youtubeSearch(query):
 
         for i in range(0,5):
             curr_id = yt_index_to_id[sort_idx[i]]
-            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id), yt_comment_data[curr_id]["text"],yt_id_to_likes[curr_id])
+            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id]))
             id_arr.append(curr_id)
 
         like_arr = [yt_id_to_likes[i] for i in id_arr]

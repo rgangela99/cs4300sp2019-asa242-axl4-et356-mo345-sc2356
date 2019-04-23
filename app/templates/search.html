@@ -13,10 +13,10 @@
     </form>
     <form class="form-inline global-search">
         <div class="form-group" id="search_bar_text">
-            Enter an article you like:
+            Enter a Medium article you like:
             <input id="input_article" type="text" name="input_article_url" class="search_bar" placeholder="Article URL"
                 width=100px>
-            ... or a video!
+            ... or a YouTube video!
             <input id="input_video" type="text" name="input_video_url" class="search_bar" placeholder="Video URL"
                 width=100px>
         </div>
@@ -25,17 +25,18 @@
     <form class="form-inline global-search">
         <div id="results_area">
             {% if data %}
-            <h1>{{output_message}}</h1>
+            <p id="output_message_title">{{output_message}}</p>
             {% for d in data %}
             <br>
             <div class = result_item_container>
-              <a class="result_item" href="{{d[1]}}">{{d[0]}}</a>
+              <a class="result_item" href="{{d[1]}}" target="_blank">{{d[0]}}</a>
               <button type="button" class="expand_result_button" onclick="toggle_info_box(this)"> Expand </button>
               <div class = "result_info_text">
-                <p class="results_likes">Number of claps / likes: {{d[3]}}</p>
-                <p class="results_comment">Top comment: {{d[2]}}</p>
+                <p class="results_likes"><b>Number of claps / likes:</b> {{d[3]}}</p>
+                <br>
+                <p class="results_comment"><b>Top comment:</b> {{d[2]}}</p>
               </div>
-          </div>
+            </div>
             {% endfor %}
             {% endif %}
         </div>

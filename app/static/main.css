@@ -46,6 +46,8 @@ color: #4285F4;
   padding: 10px;*/
   float: left;
   font-size: 18px !important;
+  border-bottom: dashed;
+  border-width: thin;
 }
 .expand_result_button{
   float: right;
@@ -65,6 +67,13 @@ color: #4285F4;
 }
 .results_likes{
   float: left;
+  display: inherit;
+  width: 100%;
+}
+.results_comment{
+  float: left;
+  display: inherit;
+  width: 100%;
 }
 .bottom-info-bar{
   bottom:0;
@@ -87,8 +96,13 @@ color: #4285F4;
 #search_bar_text{
   font-size: 20px !important;
 }
+#output_message_title{
+  font-size: 25px;
+  border-bottom: solid;
+  border-width: thin;
+}
 #results_area{
-  background-color: Gainsboro;
+  /*background-color: Gainsboro;*/
   margin: 10px;
 }
 footer {

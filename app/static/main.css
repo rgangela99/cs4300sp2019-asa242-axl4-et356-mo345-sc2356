@@ -20,7 +20,7 @@ padding:10px;
 width:500px;
 }
 .global-search * {
-display:inline-block;
+/*display:inline-block;*/
 margin-bottom:0;
 }
 }
@@ -42,8 +42,29 @@ color: #4285F4;
 .result_item{
   background-color: White;
   width: 85%;
-  margin-top: 10px;
-  padding: 10px;
+  /*margin-top: 10px;
+  padding: 10px;*/
+  float: left;
+  font-size: 18px !important;
+}
+.expand_result_button{
+  float: right;
+  width: 15%;
+  background-color: LightSteelBlue;
+  border-radius: 12px;
+  border: none;
+}
+.result_info_text{
+  width: 100%;
+  display: none;
+  text-align: left;
+}
+.result_item_container{
+  padding: 5px;
+  text-align: left;
+}
+.results_likes{
+  float: left;
 }
 .bottom-info-bar{
   bottom:0;
@@ -57,11 +78,14 @@ color: #4285F4;
   height:300px;
 }
 #input_article{
-  width:100px;
+  width:120px;
 }
 #input_video{
   display:inline-block;
-  width:100px;
+  width:120px;
+}
+#search_bar_text{
+  font-size: 20px !important;
 }
 #results_area{
   background-color: Gainsboro;

@@ -15,12 +15,10 @@
     <form class="form-inline global-search">
         <div class="form-group" id="search_bar_text">
             Enter Media to Flip!
-            <!--<input type="radio" name ="input_type" class = "search_bar" value = "article">Medium Article<br>
-            <input type="radio" name ="input_type" class = "search_bar" value = "video">YouTube Video<br>-->
             <input type="text" name="input_url" class="search_bar" placeholder="Enter a URL">
             <select name="input_type">
-              <option value="article">Medium Article</option>
-              <option value="video">YouTube Video</option>
+              <option value="article">Medium Article to YouTube Video</option>
+              <option value="video">YouTube Video to Medium Article</option>
             </select>
         </div>
         <button type="submit" class="btn btn-info"> Search </button>
@@ -33,7 +31,7 @@
             <br>
             <div class = result_item_container>
               <a class="result_item" href="{{d[1]}}" target="_blank">{{d[0]}}</a>
-              <button type="button" class="expand_result_button" onclick="toggle_info_box(this)"> Expand </button>
+              <button type="button" class="expand_result_button" onclick="toggle_info_box(this)"> &plus; </button>
               <div class = "result_info_text">
                 <p class="results_likes"><b>Number of claps / likes:</b> {{d[3]}}</p>
                 {% if d[2] != "" %}

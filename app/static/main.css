@@ -84,6 +84,11 @@ color: #4285F4;
   display: inherit;
   width: 100%;
 }
+.results_length{
+  float: left;
+  display: inherit;
+  width: 100%;
+}
 .bottom-info-bar{
   bottom:0;
 }

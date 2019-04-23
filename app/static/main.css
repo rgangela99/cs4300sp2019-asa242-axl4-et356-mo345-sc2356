@@ -87,7 +87,8 @@ color: #4285F4;
 }
 #logo{
   display:block;
-  margin:0 auto;
+  margin: 0 auto;
+  margin-top: -10px auto;
   text-align:center;
   align-self: center;
   vertical-align: baseline;

@@ -22,9 +22,10 @@ def tokenize(text):
     text= text.lower()
     return tokenizer.tokenize(text)
 
-#building data array of both article text and video description text
-#to train the vectorizer
-data = []
+#building data arrays for Medium article text and YouTube video plus tags
+#for those that have tags
+med_text_tag = []
+yt_title_tag = []
 
 #dictionaries for referencing the Medium article data set
 title_to_text={}
@@ -41,7 +42,8 @@ for article in medium_data:
     if "tags" in article.keys():
         for tag in article["tags"]:
             tags=tag+" "
-    data.append(article["text"]+tags)
+    art_text_tag = article["text"]+tags
+    med_text_tag.append(art_text_tag)
     i+=1
 
 #dictionaries for referencing the YouTube videos data set
@@ -73,8 +75,13 @@ for youtube in yt_data:
     if 'tags' in youtube["snippet"].keys():
         for tag in youtube["snippet"]["tags"]:
             tags=tag+" "
-    data.append(youtube["snippet"]["title"]+tags)
+    vid_title_tag = youtube["snippet"]["title"]+tags
+    yt_title_tag.append(vid_title_tag)
     i+=1
+
+#data array of both article text and video description text
+#to train the vectorizer
+data = med_text_tag + yt_title_tag
 
 #maximum number of features to train the vectorizer
 n_feats = 5000
@@ -88,8 +95,8 @@ def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2')
 #building vectorizer to train
 tfidf_vec = build_vectorizer(n_feats, "english")
 tfidf_vec.fit(d for d in data)
-medium_articles_by_vocab = tfidf_vec.transform(art["text"] for art in medium_data).toarray()
-yt_vids_by_vocab = tfidf_vec.transform(vid["snippet"]["description"] for vid in yt_data).toarray()
+medium_articles_by_vocab = tfidf_vec.transform(art for art in med_text_tag).toarray()
+yt_vids_by_vocab = tfidf_vec.transform(vid for vid in yt_title_tag).toarray()
 # doc_by_vocab = tfidf_vec.fit_transform([d['text'] for d in data]).toarray()
 # tfidf_vec2 = build_vectorizer(n_feats, "english")
 # yt_doc_by_vocab = tfidf_vec2.fit_transform([d["snippet"]['description'] for d in data2]).toarray()

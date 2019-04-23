@@ -14,11 +14,9 @@
     <form class="form-inline global-search">
         <div class="form-group" id="search_bar_text">
             Enter a Medium article you like:
-            <input id="input_article" type="text" name="input_article_url" class="search_bar" placeholder="Article URL"
-                width=100px>
-            ... or a YouTube video!
-            <input id="input_video" type="text" name="input_video_url" class="search_bar" placeholder="Video URL"
-                width=100px>
+            <input type="radio" name ="input_type" class = "search_bar" value = "article">Medium Article<br>
+            <input type="radio" name ="input_type" class = "search_bar" value = "video">YouTube Video<br>
+            <input type="text" name="input_url" class="search_bar" placeholder="Enter a URL">
         </div>
         <button type="submit" class="btn btn-info"> Search </button>
     </form>

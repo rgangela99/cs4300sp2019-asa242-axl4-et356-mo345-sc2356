@@ -11,15 +11,17 @@ net_id = "Anjelika Lynne Amog (asa242), Angela Liu (axl4), Emily Tentarelli (et3
 
 @irsystem.route('/', methods=['GET'])
 def search():
-	query_article = request.args.get('input_article_url')
-	query_video = request.args.get('input_video_url')
-	if not query_article and not query_video:
+	#query_article = request.args.get('input_article_url')
+	#query_video = request.args.get('input_video_url')
+	query_type = request.args.get('input_type')
+	query_url = request.args.get('input_url')
+	if not query_url:
 		data = []
-		output_message = ''
-	elif query_article:
-		output_message = "Videos similar to: " + art_url_to_title(query_article)
-		data = youtubeSearch(query_article)
+		output_message = ""
+	elif query_url and query_type == "article":
+		output_message = "Videos similar to: " + art_url_to_title(query_url)
+		data = youtubeSearch(query_url)
 	else:
-		output_message = "Articles similar to: " + vid_url_to_title(query_video)
-		data = mediumSearch(query_video)
+		output_message = "Articles similar to: " + vid_url_to_title(query_url)
+		data = mediumSearch(query_url)
 	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=data)

@@ -188,7 +188,11 @@ def mediumSearch(query):
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
     my_title = my_video_info['snippet']['title']
-    query_vec = tfidf_vec.transform([my_title]).toarray()
+    tags=" "
+    if 'tags' in youtube["snippet"].keys():
+        for tag in youtube["snippet"]["tags"]:
+            tags=tag+" "
+    query_vec = tfidf_vec.transform([my_title + tags]).toarray()
     #demonstrating video description
     # vid_desc = my_video_info['snippet']['description']
     # query_vec = tfidf_vec.transform([vid_desc]).toarray()
@@ -232,7 +236,11 @@ def youtubeSearch(query):
         for para in paras:
             text += unicodedata.normalize('NFKD',
                                             para.get_text()) + nxt_line
-        query_vec = tfidf_vec.transform([text]).toarray()
+        tags=" "
+        if "tags" in article.keys():
+            for tag in article["tags"]:
+                tags=tag+" "
+        query_vec = tfidf_vec.transform([text + tags]).toarray()
         #sims = np.array(cosine_sim(query_vec,yt_vids_by_vocab)).flatten()
         mat_and_q = np.append(yt_vids_by_vocab,query_vec,axis=0)
         svd_docs= SVD(mat_and_q)

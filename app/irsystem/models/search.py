@@ -191,6 +191,7 @@ def claps_to_nums(claps):
 
 #search function from YouTube video to Medium article
 def mediumSearch(query):
+    num_results = 10
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
@@ -214,19 +215,19 @@ def mediumSearch(query):
     sims = np.array(cosine_sim(svd_docs[-1],svd_docs[:-1])).flatten()
     sort_idx = np.flip(np.argsort(sims))
 
-    for i in range(0,15):
+    for i in range(0,num_results):
         article = medium_data[sort_idx[i]]
         return_arr.append((article["title"], article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"]))))
 
     clap_arr = []
-    for j in range(0,15):
+    for j in range(0,num_results):
         art_index = title_to_index[return_arr[j][0]]
         claps=medium_data[art_index]["claps"]
         claps_to_nums(claps)
         clap_arr.append(claps_to_nums(claps))
 
     clap_return_arr=[]
-    for k in range(0,15):
+    for k in range(0,num_results):
         clap_return_arr.append(return_arr[np.argmax(clap_arr)])
         clap_arr[np.argmax(clap_arr)]=0
 
@@ -235,6 +236,7 @@ def mediumSearch(query):
 #search function from Medium article to YouTube video
 def youtubeSearch(query):
     try:
+        num_results = 10
         data = requests.get(query)
         soup = BeautifulSoup(data.content, 'html.parser')
         paras = soup.findAll('p')
@@ -256,14 +258,14 @@ def youtubeSearch(query):
         sort_idx =  np.flip(np.argsort(sims))
         id_arr = []
 
-        for i in range(0,15):
+        for i in range(0,num_results):
             curr_id = yt_index_to_id[sort_idx[i]]
             return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id]))
             id_arr.append(curr_id)
 
         like_arr = [yt_id_to_likes[i] for i in id_arr]
         like_return_arr=[]
-        for k in range(0,15):
+        for k in range(0,num_results):
             like_return_arr.append(return_arr[np.argmax(like_arr)])
             like_arr[np.argmax(like_arr)]=0
 

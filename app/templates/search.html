@@ -13,10 +13,14 @@
     </form>
     <form class="form-inline global-search">
         <div class="form-group" id="search_bar_text">
-            Enter a Medium article you like:
-            <input type="radio" name ="input_type" class = "search_bar" value = "article">Medium Article<br>
-            <input type="radio" name ="input_type" class = "search_bar" value = "video">YouTube Video<br>
+            Enter Media to Flip!
+            <!--<input type="radio" name ="input_type" class = "search_bar" value = "article">Medium Article<br>
+            <input type="radio" name ="input_type" class = "search_bar" value = "video">YouTube Video<br>-->
             <input type="text" name="input_url" class="search_bar" placeholder="Enter a URL">
+            <select name="input_type">
+              <option value="article">Medium Article</option>
+              <option value="video">YouTube Video</option>
+            </select>
         </div>
         <button type="submit" class="btn btn-info"> Search </button>
     </form>

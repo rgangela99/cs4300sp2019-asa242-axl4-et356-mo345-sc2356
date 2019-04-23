@@ -10,7 +10,7 @@ text-align:center;
 }
 body {
 padding-top: 5%;
-padding-bottom: 15px;
+padding-bottom: 5px;
 }
 .global-search {
 text-align:center;
@@ -117,7 +117,7 @@ color: #4285F4;
   margin: 10px;
 }
 footer {
-  position: fixed;
+  position: static;
   left: 0px;
   bottom: 0px;
   width: 100%;

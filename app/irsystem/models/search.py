@@ -116,11 +116,10 @@ def cosine_sim(vec1,doc_by_vocab):
 
 
 
-def SVD(tf_idf_matrix):
+def SVD(tf_idf_matrix, k_val):
     svd_matrix = (tf_idf_matrix).transpose()
-    words_compressed, _, docs_compressed = svds(svd_matrix, k=100)
+    _, _, docs_compressed = svds(svd_matrix, k=k_val)
     docs_compressed = docs_compressed.transpose()
-    #words_compressed = normalize(words_compressed, axis = 1)
     docs_compressed = normalize(docs_compressed, axis = 1)
     return docs_compressed
 
@@ -192,6 +191,7 @@ def claps_to_nums(claps):
 #search function from YouTube video to Medium article
 def mediumSearch(query):
     num_results = 10
+    k_val = 100
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
@@ -211,7 +211,7 @@ def mediumSearch(query):
     
     
     mat_and_q = np.append(medium_articles_by_vocab,query_vec,axis=0)
-    svd_docs= SVD(mat_and_q)
+    svd_docs= SVD(mat_and_q, k_val)
     sims = np.array(cosine_sim(svd_docs[-1],svd_docs[:-1])).flatten()
     sort_idx = np.flip(np.argsort(sims))
 
@@ -237,6 +237,7 @@ def mediumSearch(query):
 def youtubeSearch(query):
     try:
         num_results = 10
+        k_val = 200
         data = requests.get(query)
         soup = BeautifulSoup(data.content, 'html.parser')
         paras = soup.findAll('p')
@@ -252,7 +253,7 @@ def youtubeSearch(query):
         query_vec = tfidf_vec.transform([text + tags]).toarray()
         #sims = np.array(cosine_sim(query_vec,yt_vids_by_vocab)).flatten()
         mat_and_q = np.append(yt_vids_by_vocab,query_vec,axis=0)
-        svd_docs= SVD(mat_and_q)
+        svd_docs= SVD(mat_and_q, k_val)
         sims = np.array(cosine_sim(svd_docs[-1],svd_docs[:-1])).flatten()
         return_arr= []
         sort_idx =  np.flip(np.argsort(sims))

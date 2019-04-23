@@ -22,9 +22,10 @@ def tokenize(text):
     text= text.lower()
     return tokenizer.tokenize(text)
 
-#building data array of both article text and video description text
-#to train the vectorizer
-data = []
+#building data arrays for Medium article text and YouTube video plus tags
+#for those that have tags
+med_text_tag = []
+yt_title_tag = []
 
 #dictionaries for referencing the Medium article data set
 title_to_text={}
@@ -41,7 +42,8 @@ for article in medium_data:
     if "tags" in article.keys():
         for tag in article["tags"]:
             tags=tag+" "
-    data.append(article["text"]+tags)
+    art_text_tag = article["text"]+tags
+    med_text_tag.append(art_text_tag)
     i+=1
 
 #dictionaries for referencing the YouTube videos data set
@@ -73,8 +75,13 @@ for youtube in yt_data:
     if 'tags' in youtube["snippet"].keys():
         for tag in youtube["snippet"]["tags"]:
             tags=tag+" "
-    data.append(youtube["snippet"]["title"]+tags)
+    vid_title_tag = youtube["snippet"]["title"]+tags
+    yt_title_tag.append(vid_title_tag)
     i+=1
+
+#data array of both article text and video description text
+#to train the vectorizer
+data = med_text_tag + yt_title_tag
 
 #maximum number of features to train the vectorizer
 n_feats = 5000
@@ -88,8 +95,8 @@ def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2')
 #building vectorizer to train
 tfidf_vec = build_vectorizer(n_feats, "english")
 tfidf_vec.fit(d for d in data)
-medium_articles_by_vocab = tfidf_vec.transform(art["text"] for art in medium_data).toarray()
-yt_vids_by_vocab = tfidf_vec.transform(vid["snippet"]["description"] for vid in yt_data).toarray()
+medium_articles_by_vocab = tfidf_vec.transform(art for art in med_text_tag).toarray()
+yt_vids_by_vocab = tfidf_vec.transform(vid for vid in yt_title_tag).toarray()
 # doc_by_vocab = tfidf_vec.fit_transform([d['text'] for d in data]).toarray()
 # tfidf_vec2 = build_vectorizer(n_feats, "english")
 # yt_doc_by_vocab = tfidf_vec2.fit_transform([d["snippet"]['description'] for d in data2]).toarray()
@@ -184,11 +191,16 @@ def claps_to_nums(claps):
 
 #search function from YouTube video to Medium article
 def mediumSearch(query):
+    num_results = 10
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
     my_title = my_video_info['snippet']['title']
-    query_vec = tfidf_vec.transform([my_title]).toarray()
+    tags=" "
+    if 'tags' in youtube["snippet"].keys():
+        for tag in youtube["snippet"]["tags"]:
+            tags=tag+" "
+    query_vec = tfidf_vec.transform([my_title + tags]).toarray()
     #demonstrating video description
     # vid_desc = my_video_info['snippet']['description']
     # query_vec = tfidf_vec.transform([vid_desc]).toarray()
@@ -203,19 +215,19 @@ def mediumSearch(query):
     sims = np.array(cosine_sim(svd_docs[-1],svd_docs[:-1])).flatten()
     sort_idx = np.flip(np.argsort(sims))
 
-    for i in range(0,15):
+    for i in range(0,num_results):
         article = medium_data[sort_idx[i]]
         return_arr.append((article["title"], article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"]))))
 
     clap_arr = []
-    for j in range(0,15):
+    for j in range(0,num_results):
         art_index = title_to_index[return_arr[j][0]]
         claps=medium_data[art_index]["claps"]
         claps_to_nums(claps)
         clap_arr.append(claps_to_nums(claps))
 
     clap_return_arr=[]
-    for k in range(0,15):
+    for k in range(0,num_results):
         clap_return_arr.append(return_arr[np.argmax(clap_arr)])
         clap_arr[np.argmax(clap_arr)]=0
 
@@ -224,6 +236,7 @@ def mediumSearch(query):
 #search function from Medium article to YouTube video
 def youtubeSearch(query):
     try:
+        num_results = 10
         data = requests.get(query)
         soup = BeautifulSoup(data.content, 'html.parser')
         paras = soup.findAll('p')
@@ -232,7 +245,11 @@ def youtubeSearch(query):
         for para in paras:
             text += unicodedata.normalize('NFKD',
                                             para.get_text()) + nxt_line
-        query_vec = tfidf_vec.transform([text]).toarray()
+        tags=" "
+        if "tags" in article.keys():
+            for tag in article["tags"]:
+                tags=tag+" "
+        query_vec = tfidf_vec.transform([text + tags]).toarray()
         #sims = np.array(cosine_sim(query_vec,yt_vids_by_vocab)).flatten()
         mat_and_q = np.append(yt_vids_by_vocab,query_vec,axis=0)
         svd_docs= SVD(mat_and_q)
@@ -241,14 +258,14 @@ def youtubeSearch(query):
         sort_idx =  np.flip(np.argsort(sims))
         id_arr = []
 
-        for i in range(0,15):
+        for i in range(0,num_results):
             curr_id = yt_index_to_id[sort_idx[i]]
             return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id]))
             id_arr.append(curr_id)
 
         like_arr = [yt_id_to_likes[i] for i in id_arr]
         like_return_arr=[]
-        for k in range(0,15):
+        for k in range(0,num_results):
             like_return_arr.append(return_arr[np.argmax(like_arr)])
             like_arr[np.argmax(like_arr)]=0
 

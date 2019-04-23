@@ -10,7 +10,7 @@ text-align:center;
 }
 body {
 padding-top: 5%;
-padding-bottom: 15px;
+padding-bottom: 5px;
 }
 .global-search {
 text-align:center;
@@ -59,9 +59,11 @@ color: #4285F4;
 .expand_result_button{
   float: right;
   width: 15%;
-  background-color: LightSteelBlue;
+  background-color: White;
   border-radius: 12px;
   border: none;
+  font-size: 18px;
+  font-weight: bold;
 }
 .result_info_text{
   width: 100%;
@@ -115,7 +117,7 @@ color: #4285F4;
   margin: 10px;
 }
 footer {
-  position: fixed;
+  position: static;
   left: 0px;
   bottom: 0px;
   width: 100%;

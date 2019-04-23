@@ -1,5 +1,6 @@
 import json
 import re
+import pickle
 from nltk.tokenize import TreebankWordTokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -49,6 +50,9 @@ for article in medium_data:
 #dictionaries for referencing the YouTube videos data set
 with open('./data/reddit/youtube_comment_data.json') as f:
     yt_comment_data = json.load(f)
+
+with open('./data/reddit/youtube_video_lengths.pickle', 'rb') as f:
+    yt_id_to_length = pickle.load(f)
 
 yt_index_to_id={}
 yt_id_to_text={}
@@ -217,7 +221,7 @@ def mediumSearch(query):
 
     for i in range(0,num_results):
         article = medium_data[sort_idx[i]]
-        return_arr.append((article["title"], article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"]))))
+        return_arr.append((article["title"], article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"])),article["reading_time"]))
 
     clap_arr = []
     for j in range(0,num_results):
@@ -270,7 +274,7 @@ def youtubeSearch(query):
 
         for i in range(0,num_results):
             curr_id = yt_index_to_id[sort_idx[i]]
-            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id]))
+            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id], round(yt_id_to_length[curr_id])))
             id_arr.append(curr_id)
 
         # like_arr = [yt_id_to_likes[i] for i in id_arr]

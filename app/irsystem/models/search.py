@@ -30,7 +30,7 @@ data = []
 title_to_text={}
 title_to_index={}
 link_to_index={}
-with open('./data/medium/deduped-medium-comments.json') as f:
+with open('./data/medium/deduped-medium-comments-list.json') as f:
     medium_data = json.load(f)
 i=0
 for article in medium_data:
@@ -203,19 +203,19 @@ def mediumSearch(query):
     sims = np.array(cosine_sim(svd_docs[-1],svd_docs[:-1])).flatten()
     sort_idx = np.flip(np.argsort(sims))
 
-    for i in range(0,5):
+    for i in range(0,15):
         article = medium_data[sort_idx[i]]
-        return_arr.append((article["title"], article["link"], article["comments"] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"]))))
+        return_arr.append((article["title"], article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"]))))
 
     clap_arr = []
-    for j in range(0,5):
+    for j in range(0,15):
         art_index = title_to_index[return_arr[j][0]]
         claps=medium_data[art_index]["claps"]
         claps_to_nums(claps)
         clap_arr.append(claps_to_nums(claps))
 
     clap_return_arr=[]
-    for k in range(0,5):
+    for k in range(0,15):
         clap_return_arr.append(return_arr[np.argmax(clap_arr)])
         clap_arr[np.argmax(clap_arr)]=0
 
@@ -241,14 +241,14 @@ def youtubeSearch(query):
         sort_idx =  np.flip(np.argsort(sims))
         id_arr = []
 
-        for i in range(0,5):
+        for i in range(0,15):
             curr_id = yt_index_to_id[sort_idx[i]]
             return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id]))
             id_arr.append(curr_id)
 
         like_arr = [yt_id_to_likes[i] for i in id_arr]
         like_return_arr=[]
-        for k in range(0,5):
+        for k in range(0,15):
             like_return_arr.append(return_arr[np.argmax(like_arr)])
             like_arr[np.argmax(like_arr)]=0
 

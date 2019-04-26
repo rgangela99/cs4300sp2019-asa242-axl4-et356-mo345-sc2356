@@ -15,13 +15,15 @@ def search():
 	#query_video = request.args.get('input_video_url')
 	query_type = request.args.get('input_type')
 	query_url = request.args.get('input_url')
+	query_keywords = request.args.get('input_keywords')
+	
 	if not query_url:
 		data = []
 		output_message = ""
 	elif query_url and query_type == "article":
 		output_message = "Videos similar to: " + art_url_to_title(query_url)
-		data = youtubeSearch(query_url)
+		data = youtubeSearch(query_url,query_keywords)
 	else:
 		output_message = "Articles similar to: " + vid_url_to_title(query_url)
-		data = mediumSearch(query_url)
+		data = mediumSearch(query_url,query_keywords)
 	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=data)

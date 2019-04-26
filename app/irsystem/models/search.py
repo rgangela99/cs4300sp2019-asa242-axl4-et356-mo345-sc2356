@@ -192,8 +192,31 @@ def claps_to_nums(claps):
         num=float(num)
     return num
 
+def youtubeKeywords(keywords):
+    key_calc_arr=np.zeros(len(yt_index_to_id))
+    i=0
+    if(keywords!=""):
+        keyword_arr = keywords.split(",")
+    for youtube in yt_data:
+        if 'tags' in youtube["snippet"].keys():
+            key_calc_arr[i]=len(set(youtube["snippet"]["tags"]) & set(keyword_arr))
+        i+=1
+    return key_calc_arr
+
+def mediumKeywords(keywords):
+    key_calc_arr=np.zeros(len(title_to_index))
+    i=0
+    if(keywords!=""):
+        keyword_arr = keywords.split(",")
+    for article in medium_data:
+        if "tags" in article.keys():
+            key_calc_arr[i]=len(set(article["tags"]) & set(keyword_arr))
+        i+=1
+    return key_calc_arr
+
+
 #search function from YouTube video to Medium article
-def mediumSearch(query):
+def mediumSearch(query,keywords):
     num_results = 10
     k_val = 100
     vid_id = url_to_id(query)
@@ -209,7 +232,7 @@ def mediumSearch(query):
     return_arr = []
     
     svd_docs = SVD(medium_articles_by_vocab, query_vec, k_val)
-    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()
+    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+mediumKeywords(keywords)
     sort_idx = np.flip(np.argsort(sims))
     
     for i in range(0,num_results):
@@ -231,7 +254,7 @@ def mediumSearch(query):
     return clap_return_arr
 
 #search function from Medium article to YouTube video
-def youtubeSearch(query):
+def youtubeSearch(query,keywords):
     try:
         num_results = 10
         k_val = 200
@@ -260,7 +283,7 @@ def youtubeSearch(query):
         return_arr= []
 
         svd_docs = SVD(yt_vids_by_vocab, query_vec, k_val)
-        sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()
+        sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+youtubeKeywords(keywords)
         sort_idx = np.flip(np.argsort(sims))
         id_arr = []
 

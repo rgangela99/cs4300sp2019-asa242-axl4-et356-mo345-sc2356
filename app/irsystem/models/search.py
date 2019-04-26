@@ -14,8 +14,7 @@ import requests
 import unicodedata
 API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
 #for SVD
-from scipy.sparse.linalg import svds
-from sklearn.preprocessing import normalize
+from sklearn.decomposition import TruncatedSVD
 
 #general purpose tokenizer for text input
 tokenizer = TreebankWordTokenizer()
@@ -120,13 +119,14 @@ def cosine_sim(vec1,doc_by_vocab):
 
 
 
-def SVD(tf_idf_matrix, k_val):
-    svd_matrix = (tf_idf_matrix).transpose()
-    _, _, docs_compressed = svds(svd_matrix, k=k_val)
-    docs_compressed = docs_compressed.transpose()
-    docs_compressed = normalize(docs_compressed, axis = 1)
-    return docs_compressed
-
+def SVD(tf_idf_matrix, query, k_val):
+#     svd_matrix = (tf_idf_matrix).transpose()
+#     u, sigma, docs_compressed = svds(svd_matrix, k=k_val)
+#     docs_compressed = docs_compressed.transpose()
+#     docs_compressed = normalize(docs_compressed, axis = 1)
+#     return (np.array(u),np.array(sigma),np.array(docs_compressed))
+    svd = TruncatedSVD(n_components=k_val)
+    return (svd.fit_transform(tf_idf_matrix), svd.transform(query)) 
 
 #YouTube video scraping
 def url_to_id(url):
@@ -205,20 +205,13 @@ def mediumSearch(query):
         for tag in youtube["snippet"]["tags"]:
             tags=tag+" "
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
-    #demonstrating video description
-    # vid_desc = my_video_info['snippet']['description']
-    # query_vec = tfidf_vec.transform([vid_desc]).toarray()
-   # sims = np.array(cosine_sim(query_vec,medium_articles_by_vocab)).flatten()
-    return_arr = []
-    #sort_idx = np.flip(np.argsort(sims))
-    
-    
-    
-    mat_and_q = np.append(medium_articles_by_vocab,query_vec,axis=0)
-    svd_docs= SVD(mat_and_q, k_val)
-    sims = np.array(cosine_sim(svd_docs[-1],svd_docs[:-1])).flatten()
-    sort_idx = np.flip(np.argsort(sims))
 
+    return_arr = []
+    
+    svd_docs = SVD(medium_articles_by_vocab, query_vec, k_val)
+    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()
+    sort_idx = np.flip(np.argsort(sims))
+    
     for i in range(0,num_results):
         article = medium_data[sort_idx[i]]
         return_arr.append((article["title"], article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"])),article["reading_time"]))
@@ -264,12 +257,11 @@ def youtubeSearch(query):
             tags=""
 
         query_vec = tfidf_vec.transform([text+" "+title + tags]).toarray()
-        #sims = np.array(cosine_sim(query_vec,yt_vids_by_vocab)).flatten()
-        mat_and_q = np.append(yt_vids_by_vocab,query_vec,axis=0)
-        svd_docs= SVD(mat_and_q, k_val)
-        sims = np.array(cosine_sim(svd_docs[-1],svd_docs[:-1])).flatten()
         return_arr= []
-        sort_idx =  np.flip(np.argsort(sims))
+
+        svd_docs = SVD(yt_vids_by_vocab, query_vec, k_val)
+        sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()
+        sort_idx = np.flip(np.argsort(sims))
         id_arr = []
 
         for i in range(0,num_results):
@@ -277,11 +269,6 @@ def youtubeSearch(query):
             return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id], round(yt_id_to_length[curr_id])))
             id_arr.append(curr_id)
 
-        # like_arr = [yt_id_to_likes[i] for i in id_arr]
-        # like_return_arr=[]
-        # for k in range(0,num_results):
-        #     like_return_arr.append(return_arr[np.argmax(like_arr)])
-        #     like_arr[np.argmax(like_arr)]=0
 
         return return_arr
     except Exception as e:

@@ -197,6 +197,8 @@ def youtubeKeywords(keywords):
     i=0
     if(keywords!=""):
         keyword_arr = keywords.split(",")
+    else:
+        keyword_arr = [keywords]
     for youtube in yt_data:
         if 'tags' in youtube["snippet"].keys():
             key_calc_arr[i]=len(set(youtube["snippet"]["tags"]) & set(keyword_arr))
@@ -208,6 +210,8 @@ def mediumKeywords(keywords):
     i=0
     if(keywords!=""):
         keyword_arr = keywords.split(",")
+    else:
+        keyword_arr = [keywords]
     for article in medium_data:
         if "tags" in article.keys():
             key_calc_arr[i]=len(set(article["tags"]) & set(keyword_arr))
@@ -232,6 +236,7 @@ def mediumSearch(query,keywords):
     return_arr = []
     
     svd_docs = SVD(medium_articles_by_vocab, query_vec, k_val)
+    print(mediumKeywords(keywords))
     sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+mediumKeywords(keywords)
     sort_idx = np.flip(np.argsort(sims))
     

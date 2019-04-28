@@ -63,6 +63,7 @@ yt_id_to_comment={}
 yt_id_to_tags={}
 with open('./data/reddit/youtube_video_data.json') as f:
     yt_data = json.load(f)
+
 #we can concatenate all relevant comments into a single string
 for vid_comments in yt_comment_data:
     concatenated_top_comments = ""
@@ -211,7 +212,8 @@ def youtubeKeywords(keywords):
         if 'tags' in youtube["snippet"].keys():
             key_calc_arr[i]=len(set(youtube["snippet"]["tags"]) & set(keyword_arr))
         i+=1
-    return key_calc_arr
+
+    return 1/float(np.sum(key_calc_arr)+1)*(key_calc_arr)
 
 def mediumKeywords(keywords):
     key_calc_arr=np.zeros(len(title_to_index))
@@ -224,7 +226,7 @@ def mediumKeywords(keywords):
         if "tags" in article.keys():
             key_calc_arr[i]=len(set(article["tags"]) & set(keyword_arr))
         i+=1
-    return key_calc_arr
+    return 1/float(np.sum(key_calc_arr)+1)*(key_calc_arr)
 
 def youtubeComments():
     comment_score_arr = np.zeros(len(yt_index_to_id))
@@ -289,11 +291,11 @@ def mediumSearch(query,keywords):
     
     for i in range(0,num_results):
         article = medium_data[sort_idx[i]]
-        return_arr.append((article["title"], article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"])),article["reading_time"]))
+        return_arr.append((article["title"]+" "+str(sims[sort_idx[i]]), article["link"], article["comments"][0] if len(article["comments"])>0 else "",int(claps_to_nums(article["claps"])),article["reading_time"]))
 
     clap_arr = []
     for j in range(0,num_results):
-        art_index = title_to_index[return_arr[j][0]]
+        art_index = sort_idx[j]
         claps=medium_data[art_index]["claps"]
         claps_to_nums(claps)
         clap_arr.append(claps_to_nums(claps))
@@ -307,50 +309,45 @@ def mediumSearch(query,keywords):
 
 #search function from Medium article to YouTube video
 def youtubeSearch(query,keywords):
-    try:
-        num_results = 10
-        k_val = 200
-        data = requests.get(query)
-        soup = BeautifulSoup(data.content, 'html.parser')
-        paras = soup.findAll('p')
-        text = ''
-        nxt_line = '\n'
-        for para in paras:
-            text += unicodedata.normalize('NFKD',
-                                            para.get_text()) + nxt_line
-        
-        title = soup.findAll('title')[0]
-        title = title.get_text()
+    num_results = 10
+    k_val = 200
+    data = requests.get(query)
+    soup = BeautifulSoup(data.content, 'html.parser')
+    paras = soup.findAll('p')
+    text = ''
+    nxt_line = '\n'
+    for para in paras:
+        text += unicodedata.normalize('NFKD',
+                                        para.get_text()) + nxt_line
+    
+    title = soup.findAll('title')[0]
+    title = title.get_text()
 
-        tags = soup.findAll('ul', 'tags')
-        if tags:
-            tags_list = {t.findAll('a')[0].get_text().lower() for t in tags[0]}
-            tags=" "
-            for tag in tags_list:
-            	tags=tag+" "
-        else:
-            tags=""
+    tags = soup.findAll('ul', 'tags')
+    if tags:
+        tags_list = {t.findAll('a')[0].get_text().lower() for t in tags[0]}
+        tags=" "
+        for tag in tags_list:
+        	tags=tag+" "
+    else:
+        tags=""
 
-        query_vec = tfidf_vec.transform([text+" "+title + tags]).toarray()
-        return_arr= []
+    query_vec = tfidf_vec.transform([text+" "+title + tags]).toarray()
+    return_arr= []
+    svd_docs = SVD(yt_vids_by_vocab, query_vec, k_val)
+    weighted_keywords = keyword_weight*youtubeKeywords(keywords)
+    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+weighted_keywords+yt_comment_scores
+    sort_idx = np.flip(np.argsort(sims))
+    id_arr = []
 
-        svd_docs = SVD(yt_vids_by_vocab, query_vec, k_val)
-        weighted_keywords = keyword_weight*youtubeKeywords(keywords)
-        sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+weighted_keywords+yt_comment_scores
-        sort_idx = np.flip(np.argsort(sims))
-        id_arr = []
-
-        for i in range(0,num_results):
-            curr_id = yt_index_to_id[sort_idx[i]]
-            return_arr.append((yt_id_to_title[curr_id],"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id], yt_id_to_likes[curr_id], round(yt_id_to_length[curr_id])))
-            id_arr.append(curr_id)
+    for i in range(0,num_results):
+        curr_id = yt_index_to_id[sort_idx[i]]
+        return_arr.append((yt_id_to_title[curr_id]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id][0][0] if len(yt_id_to_comment[curr_id])>0 and len(yt_id_to_comment[curr_id][0])>0 else "", yt_id_to_likes[curr_id], round(yt_id_to_length[curr_id])))
+        id_arr.append(curr_id)
 
 
-        return return_arr
-    except Exception as e:
-        print(e)
-        return [("This is not a recognized Medium article link","")]
-
+    return return_arr
+    
 def getLink(query):
     if(query == ""):
         return 0

@@ -31,6 +31,7 @@ yt_title_tag = []
 title_to_text={}
 title_to_index={}
 link_to_index={}
+title_to_tags={}
 with open('./data/medium/deduped-medium-comments-list.json') as f:
     medium_data = json.load(f)
 i=0
@@ -42,26 +43,32 @@ for article in medium_data:
     if "tags" in article.keys():
         for tag in article["tags"]:
             tags=tag+" "
+        title_to_tags[article["title"]] = tags
     art_text_tag = article["text"]+tags
     med_text_tag.append(art_text_tag)
     i+=1
 
-#dictionaries for referencing the YouTube videos data set
 with open('./data/reddit/youtube_comment_data.json') as f:
     yt_comment_data = json.load(f)
 
 with open('./data/reddit/youtube_video_lengths.pickle', 'rb') as f:
     yt_id_to_length = pickle.load(f)
 
+#dictionaries for referencing the YouTube videos data set
 yt_index_to_id={}
 yt_id_to_text={}
 yt_id_to_title={}
 yt_id_to_likes={}
 yt_id_to_comment={}
+yt_id_to_tags={}
 with open('./data/reddit/youtube_video_data.json') as f:
     yt_data = json.load(f)
-for comment in yt_comment_data:
-    yt_id_to_comment[comment["id"]] = comment["text"]
+#we can concatenate all relevant comments into a single string
+for vid_comments in yt_comment_data:
+    concatenated_top_comments = ""
+    for comment in vid_comments["text_likes"]:
+        concatenated_top_comments += comment[0]
+    yt_id_to_comment[comment["id"]] = concatenated_top_comments
 
 i=0
 for youtube in yt_data:
@@ -78,6 +85,7 @@ for youtube in yt_data:
     if 'tags' in youtube["snippet"].keys():
         for tag in youtube["snippet"]["tags"]:
             tags=tag+" "
+        yt_id_to_tags[youtube['id']]=tags
     vid_title_tag = youtube["snippet"]["title"]+tags
     yt_title_tag.append(vid_title_tag)
     i+=1
@@ -218,6 +226,40 @@ def mediumKeywords(keywords):
         i+=1
     return key_calc_arr
 
+def youtubeComments():
+    comment_score_arr = np.zeros(len(yt_index_to_id))
+    i=0
+    for youtube in yt_data:
+        yt_id = youtube['id']
+        has_comments = (yt_id_to_comment[yt_id] != "")
+        has_tags = (yt_id in yt_id_to_tags.keys())
+        if (has_comments and has_tags):
+            comments = set(tokenize(yt_id_to_comment[yt_id]))
+            tags = set(youtube["snippet"]["tags"])
+            comment_score_arr[i] = len(comments & tags)
+        i+=1
+    return comment_score_arr
+
+def mediumComments():
+    comment_score_arr = np.zeros(len(yt_index_to_id))
+    i=0
+    for article in medium_data:
+        title = article["title"]
+        has_comments = (len(article["comments"]) > 0)
+        has_tags = (title in title_to_tags.keys())
+        if (has_comments and has_tags):
+            comments = {}
+            for comment in article["comments"]:
+                comments.update(tokenize(comment))
+            tags = set(title_to_tags[title])
+            comment_score_arr[i] = len(comments & tags)
+        i+=1
+    return comment_score_arr
+
+#YouTube video comment scores
+yt_comment_scores = youtubeComments()
+#Medium article comment scores
+med_comment_scores = mediumComments()
 
 #search function from YouTube video to Medium article
 def mediumSearch(query,keywords):
@@ -231,13 +273,14 @@ def mediumSearch(query,keywords):
     if 'tags' in youtube["snippet"].keys():
         for tag in youtube["snippet"]["tags"]:
             tags=tag+" "
+
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
 
     return_arr = []
     
     svd_docs = SVD(medium_articles_by_vocab, query_vec, k_val)
     print(mediumKeywords(keywords))
-    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+mediumKeywords(keywords)
+    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+mediumKeywords(keywords)+med_comment_scores
     sort_idx = np.flip(np.argsort(sims))
     
     for i in range(0,num_results):
@@ -288,7 +331,7 @@ def youtubeSearch(query,keywords):
         return_arr= []
 
         svd_docs = SVD(yt_vids_by_vocab, query_vec, k_val)
-        sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+youtubeKeywords(keywords)
+        sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+youtubeKeywords(keywords)+yt_comment_scores
         sort_idx = np.flip(np.argsort(sims))
         id_arr = []
 

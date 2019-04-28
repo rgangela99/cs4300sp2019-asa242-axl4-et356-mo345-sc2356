@@ -68,7 +68,7 @@ for vid_comments in yt_comment_data:
     concatenated_top_comments = ""
     for comment in vid_comments["text_likes"]:
         concatenated_top_comments += comment[0]
-    yt_id_to_comment[comment["id"]] = concatenated_top_comments
+    yt_id_to_comment[vid_comments["id"]] = concatenated_top_comments
 
 i=0
 for youtube in yt_data:
@@ -241,14 +241,14 @@ def youtubeComments():
     return comment_score_arr
 
 def mediumComments():
-    comment_score_arr = np.zeros(len(yt_index_to_id))
+    comment_score_arr = np.zeros(len(title_to_index))
     i=0
     for article in medium_data:
         title = article["title"]
         has_comments = (len(article["comments"]) > 0)
         has_tags = (title in title_to_tags.keys())
         if (has_comments and has_tags):
-            comments = {}
+            comments = set()
             for comment in article["comments"]:
                 comments.update(tokenize(comment))
             tags = set(title_to_tags[title])

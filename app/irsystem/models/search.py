@@ -81,10 +81,12 @@ with open('./data/reddit/youtube_video_data.json') as f:
 #we can concatenate all relevant comments into a single string
 for vid_comments in yt_comment_data:
     concatenated_top_comments = ""
+    top_comments = []
     sentiments=[]
     for comment in vid_comments["text_likes"]:
         concatenated_top_comments += comment[0]
-    yt_id_to_comment[vid_comments["id"]] = concatenated_top_comments
+        top_comments.append(comment[0])
+    yt_id_to_comment[vid_comments["id"]] = top_comments
     yt_id_to_sentiment[vid_comments["id"]] = sid.polarity_scores(concatenated_top_comments.lower())
 
 i=0
@@ -97,7 +99,7 @@ for youtube in yt_data:
         if 'likeCount' in youtube['statistics'].keys():
             yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
     if youtube['id'] not in yt_id_to_comment.keys():
-        yt_id_to_comment[youtube['id']]=""
+        yt_id_to_comment[youtube['id']]=[]
     tags=" "
     if 'tags' in youtube["snippet"].keys():
         for tag in youtube["snippet"]["tags"]:
@@ -249,10 +251,11 @@ def youtubeComments():
     i=0
     for youtube in yt_data:
         yt_id = youtube['id']
-        has_comments = (yt_id_to_comment[yt_id] != "")
+        has_comments = (len(yt_id_to_comment[yt_id]) > 0)
         has_tags = (yt_id in yt_id_to_tags.keys())
         if (has_comments and has_tags):
-            comments = set(tokenize(yt_id_to_comment[yt_id]))
+
+            comments = set(tokenize(' '.join(yt_id_to_comment[yt_id])))
             tags = set(youtube["snippet"]["tags"])
             comment_score_arr[i] = len(comments & tags)
         i+=1
@@ -357,7 +360,7 @@ def youtubeSearch(query,keywords):
 
     for i in range(0,num_results):
         curr_id = yt_index_to_id[sort_idx[i]]
-        return_arr.append((yt_id_to_title[curr_id]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id][0][0] if len(yt_id_to_comment[curr_id])>0 and len(yt_id_to_comment[curr_id][0])>0 else "", yt_id_to_likes[curr_id], round(yt_id_to_length[curr_id])))
+        return_arr.append((yt_id_to_title[curr_id]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, yt_id_to_comment[curr_id][0] if len(yt_id_to_comment[curr_id])>0 and len(yt_id_to_comment[curr_id][0])>0 else "", yt_id_to_likes[curr_id], round(yt_id_to_length[curr_id])))
         id_arr.append(curr_id)
 
 

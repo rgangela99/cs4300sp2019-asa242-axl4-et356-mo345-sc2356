@@ -244,19 +244,7 @@ def mediumSearch(query,keywords,max_time):
         if num_found == num_results:
             break
 
-
-    clap_arr = []
-    for j in range(0,num_results):
-        art_index = id_arr[j]
-        claps=medium_ind_to_art_info[art_index]["claps"]
-        clap_arr.append(claps)
-
-    clap_return_arr=[]
-    for k in range(0,num_results):
-        clap_return_arr.append(return_arr[np.argmax(clap_arr)])
-        clap_arr[np.argmax(clap_arr)]=0
-
-    return clap_return_arr
+    return return_arr
 
 #search function from Medium article to YouTube video
 def youtubeSearch(query,keywords,max_time):

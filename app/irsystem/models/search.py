@@ -74,6 +74,16 @@ with open('./data/reddit/youtube-matrix.pickle', 'rb') as f:
 with open('./data/vectorizer.pickle', 'rb') as f:
     tfidf_vec = pickle.load(f)
 
+#SVD
+with open('./data/SVD-med-model.pickle', 'rb') as f:
+    svd_med = pickle.load(f)
+with open('./data/SVD-yt-model.pickle', 'rb') as f:
+    svd_yt = pickle.load(f)
+with open('./data/SVD-med-docs.pickle', 'rb') as f:
+    svd_med_docs = pickle.load(f)
+with open('./data/SVD-yt-docs.pickle', 'rb') as f:
+    svd_yt_docs = pickle.load(f)
+
 #returns list of cosine similarities of query vector with every document in provided
 #tf-idf matrix [doc_by_vocab]
 def cosine_sim(vec1,doc_by_vocab):
@@ -85,17 +95,6 @@ def cosine_sim(vec1,doc_by_vocab):
         else:
             sims.append(np.dot(vec1,doc)/(np.linalg.norm(vec1)*np.linalg.norm(doc)))
     return sims
-
-def SVD(k_val):
-    return TruncatedSVD(n_components=k_val)
-
-med_k_val = 100
-yt_k_val = 200
-#train different SVD models on different spaces depending on the data set
-svd_med = SVD(med_k_val)
-svd_yt = SVD(yt_k_val)
-svd_med_docs = svd_med.fit_transform(medium_articles_by_vocab)
-svd_yt_docs = svd_yt.fit_transform(yt_vids_by_vocab)
 
 #YouTube video scraping
 def url_to_id(url):

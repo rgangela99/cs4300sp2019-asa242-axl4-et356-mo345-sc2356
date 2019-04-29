@@ -26,8 +26,8 @@
     </form>
     <form class="form-inline global-search">
         <div id="results_area">
-            {% if data %}
             <p id="output_message_title">{{output_message}}</p>
+            {% if data %}
             {% for d in data %}
             <br>
             <div class=result_item_container>

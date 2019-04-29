@@ -20,10 +20,21 @@ def search():
 	if not query_url:
 		data = []
 		output_message = ""
-	elif query_url and query_type == "article":
+	elif query_url and ("medium" in query_url) and query_type == "article":
 		output_message = "Videos similar to: " + art_url_to_title(query_url)
-		data = youtubeSearch(query_url,query_keywords)
-	else:
+		data = youtubeSearch(query_url,query_keywords)	
+	elif query_url and ("youtube" in query_url) and query_type == "video":
 		output_message = "Articles similar to: " + vid_url_to_title(query_url)
 		data = mediumSearch(query_url,query_keywords)
+	
+	elif ("youtube" not in query_url) and query_type == "video":
+		data = []
+		output_message = "Please enter a valid Youtube link"
+
+	elif query_url and ("medium" not in query_url) and query_type == "article":
+		data = []
+		output_message = "Please enter a valid Medium link"
+	else:
+		data = []
+		output_message = "Please enter a valid link"
 	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=data)

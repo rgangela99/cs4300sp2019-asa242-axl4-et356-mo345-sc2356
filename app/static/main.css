@@ -39,36 +39,47 @@ right:2%;
 .btn{
 background-color: #4285F4;
 border: none
+margin: 10px;
+font-size: 20px;
 }
 .step-links a{
 color: #4285F4;
-}.search_bar{
+}
+.search_bar{
   display:inline-block;
   vertical-align: middle;
 }
 .result_item{
-  background-color: White;
-  width: 85%;
-  /*margin-top: 10px;
-  padding: 10px;*/
+  width: 80%;
+  margin-top: 10px;
+  padding: 10px;
   float: left;
   font-size: 18px !important;
-  border-bottom: dashed;
-  border-width: thin;
+  background-color: #f2f2f2;
+  /*border-bottom: dashed;
+  border-width: thin;*/
+}
+.result_item:hover{
+  background-color: #e0e0e0;
 }
 .expand_result_button{
   float: right;
-  width: 15%;
-  background-color: White;
-  border-radius: 12px;
+  width: 20%;
   border: none;
   font-size: 18px;
   font-weight: bold;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #f2f2f2;
+}
+.expand_result_button:hover{
+  background-color: #e0e0e0;
 }
 .result_info_text{
   width: 100%;
   display: none;
   text-align: left;
+  margin-bottom: 5px;
 }
 .result_item_container{
   padding: 5px;
@@ -92,7 +103,7 @@ color: #4285F4;
 .bottom-info-bar{
   bottom:0;
 }
-#logo{
+.logo{
   display:block;
   margin: 0 auto;
   margin-top: -10px auto;
@@ -100,6 +111,19 @@ color: #4285F4;
   align-self: center;
   vertical-align: baseline;
   height:300px;
+}
+.about_info{
+  display: block;
+  margin: 100px;
+  font-family: 'Assistant';
+}
+#subtitle{
+  display: block;
+  text-align: center;
+  padding: 20px;
+  padding-bottom: 10px;
+  font-size: 25px;
+  font-family: sans-serif;
 }
 #input_article{
   width:120px;
@@ -118,8 +142,10 @@ color: #4285F4;
   border-width: thin;
 }
 #results_area{
-  /*background-color: Gainsboro;*/
-  margin: 10px;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 footer {
   position: static;
@@ -128,4 +154,31 @@ footer {
   width: 100%;
   text-align: center;
   font-size: 10px;
+}
+input[type=text]{
+  width: 20%;
+  padding: 10px 8px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 2px;
+  outline: none;
+}
+input[type=text]:focus{
+  border: 2px solid grey;
+}
+select{
+  padding: 10px 8px;
+  outline: none;
+  background-color: white;
+  border: none;
+}
+select:focus{
+  border: 2px solid grey;
+}
+option{
+  font-size:15px;
+  outline: none;
+}
+option:focus{
+  outline: none;
 }

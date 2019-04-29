@@ -126,16 +126,16 @@ def cosine_sim(vec1,doc_by_vocab):
             sims.append(np.dot(vec1,doc)/(np.linalg.norm(vec1)*np.linalg.norm(doc)))
     return sims
 
+def SVD(k_val):
+    return TruncatedSVD(n_components=k_val)
 
-
-def SVD(tf_idf_matrix, query, k_val):
-#     svd_matrix = (tf_idf_matrix).transpose()
-#     u, sigma, docs_compressed = svds(svd_matrix, k=k_val)
-#     docs_compressed = docs_compressed.transpose()
-#     docs_compressed = normalize(docs_compressed, axis = 1)
-#     return (np.array(u),np.array(sigma),np.array(docs_compressed))
-    svd = TruncatedSVD(n_components=k_val)
-    return (svd.fit_transform(tf_idf_matrix), svd.transform(query)) 
+med_k_val = 100
+yt_k_val = 200
+#train different SVD models on different spaces depending on the data set
+svd_med = SVD(med_k_val)
+svd_yt = SVD(yt_k_val)
+svd_med_docs = svd_med.fit_transform(medium_articles_by_vocab)
+svd_yt_docs = svd_yt.fit_transform(yt_vids_by_vocab)
 
 #YouTube video scraping
 def url_to_id(url):
@@ -270,7 +270,6 @@ med_comment_scores = med_comment_weight*mediumComments()
 #search function from YouTube video to Medium article
 def mediumSearch(query,keywords):
     num_results = 10
-    k_val = 100
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
     my_video_info = api_response['items'][0]
@@ -284,9 +283,9 @@ def mediumSearch(query,keywords):
 
     return_arr = []
     
-    svd_docs = SVD(medium_articles_by_vocab, query_vec, k_val)
+    svd_query = svd_med.transform(query_vec)
     weighted_keywords = keyword_weight*mediumKeywords(keywords)
-    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+weighted_keywords+med_comment_scores
+    sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores
     sort_idx = np.flip(np.argsort(sims))
     
     for i in range(0,num_results):
@@ -310,7 +309,6 @@ def mediumSearch(query,keywords):
 #search function from Medium article to YouTube video
 def youtubeSearch(query,keywords):
     num_results = 10
-    k_val = 200
     data = requests.get(query)
     soup = BeautifulSoup(data.content, 'html.parser')
     paras = soup.findAll('p')
@@ -334,9 +332,9 @@ def youtubeSearch(query,keywords):
 
     query_vec = tfidf_vec.transform([text+" "+title + tags]).toarray()
     return_arr= []
-    svd_docs = SVD(yt_vids_by_vocab, query_vec, k_val)
+    svd_query = svd_yt.transform(query_vec)
     weighted_keywords = keyword_weight*youtubeKeywords(keywords)
-    sims = np.array(cosine_sim(svd_docs[1],svd_docs[0])).flatten()+weighted_keywords+yt_comment_scores
+    sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()+weighted_keywords+yt_comment_scores
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
 

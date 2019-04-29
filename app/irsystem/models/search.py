@@ -16,10 +16,10 @@ API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
 #for SVD
 from sklearn.decomposition import TruncatedSVD
 #for Sentiment Analysis
-import nltk
-nltk.download('vader_lexicon')
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-sid = SentimentIntensityAnalyzer()
+#import nltk
+#nltk.download('vader_lexicon')
+#from nltk.sentiment.vader import SentimentIntensityAnalyzer
+#sid = SentimentIntensityAnalyzer()
 
 
 #general purpose tokenizer for text input
@@ -63,7 +63,7 @@ for article in medium_data:
         comment_toks = set()
         sentiments=[]
         for comment in article["comments"]:
-            sentiments.append(sid.polarity_scores((comment).lower()))
+            #sentiments.append(sid.polarity_scores((comment).lower()))
             comment_toks.update(tokenize(comment))
         tmp["sentiments"] = sentiments
         tmp["comment_toks"] = comment_toks
@@ -121,7 +121,7 @@ for vid_comments in yt_comment_data:
     #comment[1] is the number of likes for that comment
     for comment in vid_comments["text_likes"]:
         top_comments.append(comment[0])
-        sentiments.append(sid.polarity_scores((comment[0]).lower()))
+        #sentiments.append(sid.polarity_scores((comment[0]).lower()))
         comment_toks.update(tokenize(comment[0]))
     yt_id = vid_comments["id"]
     yt_id_to_vid_info[yt_id]["comments"] = top_comments

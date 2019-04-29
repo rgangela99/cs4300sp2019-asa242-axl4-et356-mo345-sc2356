@@ -15,6 +15,12 @@ import unicodedata
 API_KEY = "AIzaSyA2l1Gs_fWKE8-UVWhMgVPmF3Bo2-Sci7U"
 #for SVD
 from sklearn.decomposition import TruncatedSVD
+#for Sentiment Analysis
+import nltk
+nltk.download('vader_lexicon')
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+sid = SentimentIntensityAnalyzer()
+
 
 #general purpose tokenizer for text input
 tokenizer = TreebankWordTokenizer()
@@ -32,6 +38,7 @@ title_to_text={}
 title_to_index={}
 link_to_index={}
 title_to_tags={}
+id_to_sentiment={}
 with open('./data/medium/deduped-medium-comments-list.json') as f:
     medium_data = json.load(f)
 i=0
@@ -39,6 +46,12 @@ for article in medium_data:
     title_to_index[article["title"]]=i
     title_to_text[article["title"]] = tokenize(article["text"])
     link_to_index[article["link"]]=i
+    id_to_sentiment[i]=[]
+    sentiments=[]
+    if (len(article["comments"])>0):
+        for comment in article["comments"]:
+            sentiments.append(sid.polarity_scores((comment).lower()))
+    id_to_sentiment[i]=sentiments
     tags=" "
     if "tags" in article.keys():
         for tag in article["tags"]:
@@ -61,15 +74,18 @@ yt_id_to_title={}
 yt_id_to_likes={}
 yt_id_to_comment={}
 yt_id_to_tags={}
+yt_id_to_sentiment={}
 with open('./data/reddit/youtube_video_data.json') as f:
     yt_data = json.load(f)
 
 #we can concatenate all relevant comments into a single string
 for vid_comments in yt_comment_data:
     concatenated_top_comments = ""
+    sentiments=[]
     for comment in vid_comments["text_likes"]:
         concatenated_top_comments += comment[0]
     yt_id_to_comment[vid_comments["id"]] = concatenated_top_comments
+    yt_id_to_sentiment[vid_comments["id"]] = sid.polarity_scores(concatenated_top_comments.lower())
 
 i=0
 for youtube in yt_data:
@@ -213,7 +229,7 @@ def youtubeKeywords(keywords):
             key_calc_arr[i]=len(set(youtube["snippet"]["tags"]) & set(keyword_arr))
         i+=1
 
-    return 1/float(np.sum(key_calc_arr)+1)*(key_calc_arr)
+    return (key_calc_arr)
 
 def mediumKeywords(keywords):
     key_calc_arr=np.zeros(len(title_to_index))
@@ -226,7 +242,7 @@ def mediumKeywords(keywords):
         if "tags" in article.keys():
             key_calc_arr[i]=len(set(article["tags"]) & set(keyword_arr))
         i+=1
-    return 1/float(np.sum(key_calc_arr)+1)*(key_calc_arr)
+    return (key_calc_arr)
 
 def youtubeComments():
     comment_score_arr = np.zeros(len(yt_index_to_id))
@@ -241,6 +257,7 @@ def youtubeComments():
             comment_score_arr[i] = len(comments & tags)
         i+=1
     return comment_score_arr
+
 
 def mediumComments():
     comment_score_arr = np.zeros(len(title_to_index))
@@ -258,7 +275,7 @@ def mediumComments():
         i+=1
     return comment_score_arr
 
-med_comment_weight = 0.1
+med_comment_weight = 0.01
 yt_comment_weight = 0.01
 keyword_weight = 0.1
 

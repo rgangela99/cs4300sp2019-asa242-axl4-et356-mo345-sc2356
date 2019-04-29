@@ -46,112 +46,33 @@ med_text_tag = []
 yt_title_tag = []
 
 #dictionary for referencing the Medium article data set
-medium_ind_to_art_info = {}
+with open('./data/medium/medium-data.pickle', 'rb') as f:
+    medium_ind_to_art_info = pickle.load(f)
 
-with open('./data/medium/deduped-medium-comments-list.json') as f:
-    medium_data = json.load(f)
+med_data_len = len(medium_ind_to_art_info.keys())
 
-i=0
-for article in medium_data:
-    tmp = {}
-    tmp["title"] = article["title"]
-    tmp["link"] = article["link"]
-    tmp["claps"] = int(claps_to_nums(article["claps"]))
-    tmp["reading_time"] = article["reading_time"]
-    if (len(article["comments"])>0):
-        tmp["comments"] = article["comments"]
-        comment_toks = set()
-        sentiments=[]
-        for comment in article["comments"]:
-            #sentiments.append(sid.polarity_scores((comment).lower()))
-            comment_toks.update(tokenize(comment))
-        tmp["sentiments"] = sentiments
-        tmp["comment_toks"] = comment_toks
-    art_text_tag = article["text"]
-    if "tags" in article.keys():
-        tags=set()
-        for tag in article["tags"]:
-            art_text_tag += " " + tag
-            tags.add(tag)
-        tmp["tags"] = tags
-    med_text_tag.append(art_text_tag)
-    medium_ind_to_art_info[i] = tmp
-    i+=1 
+#dictionaries for referencing YouTube video data set
+with open('./data/reddit/youtube-index-id.pickle', 'rb') as f:
+    yt_index_to_id = pickle.load(f)
 
-with open('./data/reddit/youtube_comment_data.json') as f:
-    yt_comment_data = json.load(f)
+with open('./data/reddit/youtube-vid-info.pickle', 'rb') as f:
+    yt_id_to_vid_info = pickle.load(f)
 
+yt_data_len = len(yt_index_to_id.keys())
+
+#matrices
 with open('./data/reddit/youtube_video_lengths.pickle', 'rb') as f:
     yt_id_to_length = pickle.load(f)
 
-#dictionaries for referencing the YouTube videos data set
-yt_index_to_id = {}
-yt_id_to_vid_info = {}
-with open('./data/reddit/youtube_video_data.json') as f:
-    yt_data = json.load(f)
+with open('./data/medium/medium-matrix.pickle', 'rb') as f:
+    medium_articles_by_vocab = pickle.load(f)
 
-i=0
-for youtube in yt_data:
-    yt_id=youtube['id']
-    yt_index_to_id[i]=yt_id
-    yt_id_to_vid_info[yt_id]={}
-    yt_id_to_vid_info[yt_id]["title"] = youtube["snippet"]["title"]
-    yt_id_to_vid_info[yt_id]["likes"] = 0
-    if 'statistics' in youtube.keys():
-        if 'likeCount' in youtube['statistics'].keys():
-            yt_id_to_vid_info[yt_id]["likes"] = int(youtube['statistics']['likeCount'])
-    vid_title_tag = youtube["snippet"]["title"]
-    if 'tags' in youtube["snippet"].keys():
-        #tags=" "
-        tags = set()
-        for tag in youtube["snippet"]["tags"]:
-            vid_title_tag += " " + tag
-            tags.add(tag)
-        yt_id_to_vid_info[yt_id]["tags"] = tags
-    yt_title_tag.append(vid_title_tag)
-    i+=1
+with open('./data/reddit/youtube-matrix.pickle', 'rb') as f:
+    yt_vids_by_vocab = pickle.load(f)
 
-
-
-for vid_comments in yt_comment_data:
-    top_comments = []
-    comment_toks = set()
-    sentiments=[]
-    #comment[0] is the actual text of the comment
-    #comment[1] is the number of likes for that comment
-    for comment in vid_comments["text_likes"]:
-        top_comments.append(comment[0])
-        #sentiments.append(sid.polarity_scores((comment[0]).lower()))
-        comment_toks.update(tokenize(comment[0]))
-    yt_id = vid_comments["id"]
-    yt_id_to_vid_info[yt_id]["comments"] = top_comments
-    yt_id_to_vid_info[yt_id]["comment_toks"] = comment_toks
-    yt_id_to_vid_info[yt_id]["sentiments"] = sentiments
-
-
-
-#data array of both article text and video description text
-#to train the vectorizer
-data = med_text_tag + yt_title_tag
-
-#maximum number of features to train the vectorizer
-n_feats = 5000
-medium_articles_by_vocab = np.empty([len(medium_data), n_feats])
-yt_vids_by_vocab = np.empty([len(yt_data), n_feats])
-# doc_by_vocab = np.empty([len(data), n_feats])
-
-def build_vectorizer(max_features, stop_words, max_df=0.8, min_df=10, norm='l2'):
-    return TfidfVectorizer(stop_words=stop_words, max_df=max_df, min_df=min_df,max_features=max_features, norm=norm)
-
-#building vectorizer to train
-tfidf_vec = build_vectorizer(n_feats, "english")
-tfidf_vec.fit(d for d in data)
-medium_articles_by_vocab = tfidf_vec.transform(art for art in med_text_tag).toarray()
-yt_vids_by_vocab = tfidf_vec.transform(vid for vid in yt_title_tag).toarray()
-# doc_by_vocab = tfidf_vec.fit_transform([d['text'] for d in data]).toarray()
-# tfidf_vec2 = build_vectorizer(n_feats, "english")
-# yt_doc_by_vocab = tfidf_vec2.fit_transform([d["snippet"]['description'] for d in data2]).toarray()
-index_to_vocab = {i:v for i, v in enumerate(tfidf_vec.get_feature_names())}
+#vectorizer
+with open('./data/vectorizer.pickle', 'rb') as f:
+    tfidf_vec = pickle.load(f)
 
 #returns list of cosine similarities of query vector with every document in provided
 #tf-idf matrix [doc_by_vocab]
@@ -300,8 +221,8 @@ def mediumSearch(query,keywords):
     my_video_info = api_response['items'][0]
     my_title = my_video_info['snippet']['title']
     tags=" "
-    if 'tags' in youtube["snippet"].keys():
-        for tag in youtube["snippet"]["tags"]:
+    if 'tags' in my_video_info["snippet"].keys():
+        for tag in my_video_info["snippet"]["tags"]:
             tags=tag+" "
 
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
@@ -320,9 +241,8 @@ def mediumSearch(query,keywords):
     clap_arr = []
     for j in range(0,num_results):
         art_index = sort_idx[j]
-        claps=medium_data[art_index]["claps"]
-        claps_to_nums(claps)
-        clap_arr.append(claps_to_nums(claps))
+        claps=medium_ind_to_art_info[art_index]["claps"]
+        clap_arr.append(claps)
 
     clap_return_arr=[]
     for k in range(0,num_results):

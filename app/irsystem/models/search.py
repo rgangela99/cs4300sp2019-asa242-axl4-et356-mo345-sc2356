@@ -213,7 +213,7 @@ yt_comment_scores = yt_comment_weight*youtubeComments()
 med_comment_scores = med_comment_weight*mediumComments()
 
 #search function from YouTube video to Medium article
-def mediumSearch(query,keywords):
+def mediumSearch(query,keywords,max_time):
     num_results = 10
     vid_id = url_to_id(query)
     api_response = get_single_video(vid_id)
@@ -232,14 +232,22 @@ def mediumSearch(query,keywords):
     weighted_keywords = keyword_weight*mediumKeywords(keywords)
     sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores
     sort_idx = np.flip(np.argsort(sims))
+    id_arr = []
     
-    for i in range(0,num_results):
+    num_found = 0
+    n = len(sort_idx)
+    for i in range(0,n):
         article = medium_ind_to_art_info[sort_idx[i]]
-        return_arr.append((article["title"]+" "+str(sims[sort_idx[i]]), article["link"], article["comments"][0] if ("comments" in article.keys()) else "", article["claps"], article["reading_time"]))
+        if article["reading_time"] <= max_time:
+            return_arr.append((article["title"]+" "+str(sims[sort_idx[i]]), article["link"], article["comments"][0] if ("comments" in article.keys()) else "", article["claps"], article["reading_time"]))
+            id_arr.append(sort_idx[i])
+        if num_found == num_results:
+            break
+
 
     clap_arr = []
     for j in range(0,num_results):
-        art_index = sort_idx[j]
+        art_index = id_arr[j]
         claps=medium_ind_to_art_info[art_index]["claps"]
         clap_arr.append(claps)
 
@@ -251,7 +259,7 @@ def mediumSearch(query,keywords):
     return clap_return_arr
 
 #search function from Medium article to YouTube video
-def youtubeSearch(query,keywords):
+def youtubeSearch(query,keywords,max_time):
     num_results = 10
     data = requests.get(query)
     soup = BeautifulSoup(data.content, 'html.parser')
@@ -282,10 +290,16 @@ def youtubeSearch(query,keywords):
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
 
-    for i in range(0,num_results):
+    num_found = 0
+    n = len(sort_idx)
+    for i in range(0,n):
         curr_id = yt_index_to_id[sort_idx[i]]
-        return_arr.append((yt_id_to_vid_info[curr_id]["title"]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, yt_id_to_vid_info[curr_id]["comments"][0] if ("comments" in yt_id_to_vid_info[curr_id].keys()) else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])))
-        id_arr.append(curr_id)
+        if yt_id_to_length[curr_id] <= max_time:
+            return_arr.append((yt_id_to_vid_info[curr_id]["title"]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, yt_id_to_vid_info[curr_id]["comments"][0] if ("comments" in yt_id_to_vid_info[curr_id].keys()) else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])))
+            id_arr.append(curr_id)
+            num_found += 1
+        if num_found == num_results:
+            break
 
 
     return return_arr

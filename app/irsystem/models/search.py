@@ -33,33 +33,37 @@ def tokenize(text):
 med_text_tag = []
 yt_title_tag = []
 
-#dictionaries for referencing the Medium article data set
-title_to_text={}
-title_to_index={}
-link_to_index={}
-title_to_tags={}
-id_to_sentiment={}
+#dictionary for referencing the Medium article data set
+medium_ind_to_art_info = {}
+
 with open('./data/medium/deduped-medium-comments-list.json') as f:
     medium_data = json.load(f)
+
 i=0
 for article in medium_data:
-    title_to_index[article["title"]]=i
-    title_to_text[article["title"]] = tokenize(article["text"])
-    link_to_index[article["link"]]=i
-    id_to_sentiment[i]=[]
-    sentiments=[]
+    tmp = {}
+    tmp["title"] = article["title"]
+    tmp["link"] = article["link"]
+    tmp["claps"] = claps_to_nums(article["claps"])
+    tmp["reading_time"] = article["reading_time"]
     if (len(article["comments"])>0):
+        tmp["comments"] = article["comments"]
+        comment_toks = set()
+        sentiments=[]
         for comment in article["comments"]:
             sentiments.append(sid.polarity_scores((comment).lower()))
-    id_to_sentiment[i]=sentiments
-    tags=" "
+            comment_toks.update(tokenize(comment))
+        tmp["sentiments"] = sentiments
+        tmp["comment_toks"] = comment_toks
+    art_text_tag = article["text"]
     if "tags" in article.keys():
+        tags=set()
         for tag in article["tags"]:
-            tags=tag+" "
-        title_to_tags[article["title"]] = tags
-    art_text_tag = article["text"]+tags
+            art_text_tag += " " + tag
+            tags.add(tag)
+        tmp["tags"] = tags
     med_text_tag.append(art_text_tag)
-    i+=1
+    medium_ind_to_art_info[i] = tmp 
 
 with open('./data/reddit/youtube_comment_data.json') as f:
     yt_comment_data = json.load(f)
@@ -68,42 +72,43 @@ with open('./data/reddit/youtube_video_lengths.pickle', 'rb') as f:
     yt_id_to_length = pickle.load(f)
 
 #dictionaries for referencing the YouTube videos data set
-yt_index_to_id={}
-yt_id_to_text={}
-yt_id_to_title={}
-yt_id_to_likes={}
-yt_id_to_comment={}
-yt_id_to_tags={}
-yt_id_to_sentiment={}
+yt_index_to_id = {}
+yt_id_to_vid_info = {}
 with open('./data/reddit/youtube_video_data.json') as f:
     yt_data = json.load(f)
 
-#we can concatenate all relevant comments into a single string
 for vid_comments in yt_comment_data:
-    concatenated_top_comments = ""
+    top_comments = []
+    comment_toks = set()
     sentiments=[]
+    #comment[0] is the actual text of the comment
+    #comment[1] is the number of likes for that comment
     for comment in vid_comments["text_likes"]:
-        concatenated_top_comments += comment[0]
-    yt_id_to_comment[vid_comments["id"]] = concatenated_top_comments
-    yt_id_to_sentiment[vid_comments["id"]] = sid.polarity_scores(concatenated_top_comments.lower())
+        top_comments.append(comment[0])
+        sentiments.append(sid.polarity_scores((comment[0]).lower()))
+        comment_toks.update(tokenize(comment[0]))
+    yt_id = vid_comments["id"]
+    yt_id_to_vid_info[yt_id]["comments"] = top_comments
+    yt_id_to_vid_info[yt_id]["comment_toks"] = comment_toks
+    yt_id_to_vid_info[yt_id]["sentiments"] = sentiments
 
 i=0
 for youtube in yt_data:
-    yt_index_to_id[i]=youtube['id']
-    yt_id_to_text[youtube['id']] = tokenize(youtube["snippet"]["description"])
-    yt_id_to_title[youtube['id']]=youtube["snippet"]["title"]
-    yt_id_to_likes[youtube['id']]=0
+    yt_id=youtube['id']
+    yt_index_to_id[i]=yt_id
+    yt_id_to_vid_info[yt_id]["title"] = youtube["snippet"]["title"]
+    yt_id_to_vid_info[yt_id]["likes"] = 0
     if 'statistics' in youtube.keys():
         if 'likeCount' in youtube['statistics'].keys():
-            yt_id_to_likes[youtube['id']]=int(youtube['statistics']['likeCount'])
-    if youtube['id'] not in yt_id_to_comment.keys():
-        yt_id_to_comment[youtube['id']]=""
-    tags=" "
+            yt_id_to_vid_info[yt_id]["likes"] = int(youtube['statistics']['likeCount'])
+    vid_title_tag = youtube["snippet"]["title"]
     if 'tags' in youtube["snippet"].keys():
+        #tags=" "
+        tags = set()
         for tag in youtube["snippet"]["tags"]:
-            tags=tag+" "
-        yt_id_to_tags[youtube['id']]=tags
-    vid_title_tag = youtube["snippet"]["title"]+tags
+            vid_title_tag += " " + tag
+            tags.add(tag)
+         yt_id_to_vid_info[yt_id]["tags"] = tags
     yt_title_tag.append(vid_title_tag)
     i+=1
 

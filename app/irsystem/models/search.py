@@ -206,11 +206,17 @@ def mediumComments():
 med_comment_weight = 0.01
 yt_comment_weight = 0.01
 keyword_weight = 0.1
+med_sentiment_weight = 0.01
+yt_sentiment_weight = 0.01
 
 #YouTube video comment scores
 yt_comment_scores = yt_comment_weight*youtubeComments()
 #Medium article comment scores
 med_comment_scores = med_comment_weight*mediumComments()
+
+yt_sentiment_scores = [yt_sentiment_weight * yt_id_to_vid_info[k]['sentiments'][0]['compound'] for k in yt_id_to_vid_info.keys()]
+medium_sentiment_scores = [medium_sentiment_weight * medium_ind_to_art_info[1760]['sentiments']['compound'] 
+    for k in medium_ind_to_art_info.keys()]
 
 #search function from YouTube video to Medium article
 def mediumSearch(query,keywords,max_time):
@@ -230,7 +236,7 @@ def mediumSearch(query,keywords,max_time):
     
     svd_query = svd_med.transform(query_vec)
     weighted_keywords = keyword_weight*mediumKeywords(keywords)
-    sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores
+    sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores+medium_sentiment_scores
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
     
@@ -274,7 +280,7 @@ def youtubeSearch(query,keywords,max_time):
     return_arr= []
     svd_query = svd_yt.transform(query_vec)
     weighted_keywords = keyword_weight*youtubeKeywords(keywords)
-    sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()+weighted_keywords+yt_comment_scores
+    sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()+weighted_keywords+yt_comment_scores+yt_sentiment_scores
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
 

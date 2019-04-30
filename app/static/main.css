@@ -28,6 +28,10 @@ margin-bottom:0;
 position:absolute;
 top:2%;
 right:2%;
+font-family: 'Assistant';
+font-size: 15px;
+text-decoration: none;
+text-color: black;
 }
 .search_bar{
   display: inline;
@@ -123,7 +127,7 @@ color: #4285F4;
   padding: 20px;
   padding-bottom: 10px;
   font-size: 25px;
-  font-family: sans-serif;
+  font-family: 'Assistant';
 }
 #input_article{
   width:120px;
@@ -146,6 +150,9 @@ color: #4285F4;
   margin-right: 50px;
   margin-top: 10px;
   margin-bottom: 10px;
+}
+a:visited{
+  text-decoration: none;
 }
 footer {
   position: static;

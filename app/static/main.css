@@ -160,17 +160,32 @@ footer {
   bottom: 0px;
   width: 100%;
   text-align: center;
-  font-size: 10px;
+  font-size: 10px;;
+  right: 50%
+  font-family: 'Assistant'
 }
 input[type=text]{
+  width: 15%;
+  padding: 10px 8px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 2px;
+  outline: none;
+  font-family: 'Assistant';
+}
+input[type=text]:focus{
+  border: 2px solid grey;
+}
+input[type=number]{
   width: 20%;
   padding: 10px 8px;
   box-sizing: border-box;
   border: none;
   border-radius: 2px;
   outline: none;
+  font-family: 'Assistant'
 }
-input[type=text]:focus{
+input[type=number]:focus{
   border: 2px solid grey;
 }
 select{
@@ -178,6 +193,7 @@ select{
   outline: none;
   background-color: white;
   border: none;
+  font-family: 'Assistant'
 }
 select:focus{
   border: 2px solid grey;

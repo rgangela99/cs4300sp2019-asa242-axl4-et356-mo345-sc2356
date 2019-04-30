@@ -8,11 +8,12 @@
     <script src="/static/search.js"></script>
 </head>
 <header>
-  <div class="topcorner">
-    <a href="/">Home |</a>
-    <a href="/about"> About</a>
-  </div>
+    <div class="topcorner">
+        <a href="/">Home |</a>
+        <a href="/about"> About</a>
+    </div>
 </header>
+
 <body>
     <!--<div class="form-inline global-search">-->
     <div>
@@ -47,7 +48,7 @@
                     <p class="results_likes"><b>Number of claps / likes:</b> {{d[3]}}</p>
                     {% if d[2] != "" %}
                     <br>
-                    <p class="results_comment"><b>Top comment:</b> {{d[2]}}</p>
+                    <p class="results_comment"><b>Tags:</b> {{d[2]}}</p>
                     {% endif %}
                     {% if d[4] and d[4] != 0 %}
                     <br>

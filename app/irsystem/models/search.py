@@ -277,7 +277,7 @@ def mediumSearch(query,keywords,max_time):
     for i in range(0,n):
         article = medium_ind_to_art_info[sort_idx[i]]
         if article["reading_time"] <= max_time:
-            return_arr.append((article["title"]+" "+str(sims[sort_idx[i]]), article["link"], article["comments"][0] if ("comments" in article.keys()) else "", article["claps"], article["reading_time"]))
+            return_arr.append((article["title"]+" "+str(sims[sort_idx[i]]), article["link"], ', '.join(article["tags"]), article["claps"], article["reading_time"]))
             id_arr.append(sort_idx[i])
             num_found+=1
         if num_found == num_results:
@@ -325,7 +325,7 @@ def youtubeSearch(query,keywords,max_time):
     for i in range(0,n):
         curr_id = yt_index_to_id[sort_idx[i]]
         if yt_id_to_length[curr_id] <= max_time:
-            return_arr.append((yt_id_to_vid_info[curr_id]["title"]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, yt_id_to_vid_info[curr_id]["comments"][0] if ("comments" in yt_id_to_vid_info[curr_id].keys()) else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])))
+            return_arr.append((yt_id_to_vid_info[curr_id]["title"]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])))
             id_arr.append(curr_id)
             num_found += 1
         if num_found == num_results:

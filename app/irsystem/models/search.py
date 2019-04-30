@@ -44,8 +44,8 @@ def claps_to_nums(claps):
 med_comment_weight = 0.01
 yt_comment_weight = 0.01
 keyword_weight = 0.3
-med_sentiment_weight = 0.01
-yt_sentiment_weight = 0.01
+med_sentiment_weight = 0.001
+yt_sentiment_weight = 0.001
 yt_likes_weight = 0.1
 med_claps_weight = 0.1
 

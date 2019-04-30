@@ -16,7 +16,7 @@
     </div>
     <div class="topcorner-right">
       <a href="https://medium.com/"><img src="/static/medium_icon.png" id="medium_link" target="_blank"></a>
-      <a href=="https://www.youtube.com/"><img src="/static/youtibe_icon.png" id="youtube_link"target="_blank"></a>
+      <a href="https://www.youtube.com/"><img src="/static/youtibe_icon.png" id="youtube_link"target="_blank"></a>
     </div>
 </header>
 
@@ -64,7 +64,7 @@
                     <br>
                     <p class="results_length"><b>Length:</b> {{d[4]}} minutes</p>
                     {% endif %}
-                    <p class="similarity_symbol"><b>Similarity scores:</b> cosine: {{d[5][0]}} | keyword: {{d[5][1]}} | comment: {{d[5][2]}} | sentiment: {{d[5][3]}} | likes: {{d[5][4]}}</p>
+                    <p class="similarity_symbol"><b>Similarity scores:</b> overall: {{d[5][0]}} | cosine: {{d[5][1]}} | keyword: {{d[5][2]}} | comment: {{d[5][3]}} | sentiment: {{d[5][4]}} | likes: {{d[5][5]}}</p>
                 </div>
             </div>
             {% endfor %}

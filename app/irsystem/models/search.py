@@ -208,6 +208,8 @@ yt_comment_weight = 0.01
 keyword_weight = 0.1
 med_sentiment_weight = 0.01
 yt_sentiment_weight = 0.01
+med_sentiment_cap = 0.03
+yt_sentiment_cap = 0.03
 
 #YouTube video comment scores
 yt_comment_scores = yt_comment_weight*youtubeComments()
@@ -222,7 +224,7 @@ for k in yt_id_to_vid_info.keys():
         for comm_sent in yt_id_to_vid_info[k]['sentiments']:
             curr_score += yt_sentiment_weight * comm_sent['compound']
     
-    yt_sentiment_scores.append(curr_score)
+    yt_sentiment_scores.append(max(curr_score, yt_sentiment_cap))
 
 medium_sentiment_scores = []
 
@@ -231,8 +233,8 @@ for k in medium_ind_to_art_info.keys():
     if 'sentiments' in medium_ind_to_art_info[k].keys():
         for comm_sent in medium_ind_to_art_info[k]['sentiments']:
             curr_score += med_sentiment_weight * comm_sent['compound']  
-            
-    medium_sentiment_scores.append(curr_score)
+
+    medium_sentiment_scores.append(max(curr_score, med_sentiment_cap))
 
 #search function from YouTube video to Medium article
 def mediumSearch(query,keywords,max_time):

@@ -269,6 +269,7 @@ def mediumSearch(query,keywords,max_time):
         if article["reading_time"] <= max_time:
             return_arr.append((article["title"]+" "+str(sims[sort_idx[i]]), article["link"], article["comments"][0] if ("comments" in article.keys()) else "", article["claps"], article["reading_time"]))
             id_arr.append(sort_idx[i])
+            num_found+=1
         if num_found == num_results:
             break
 

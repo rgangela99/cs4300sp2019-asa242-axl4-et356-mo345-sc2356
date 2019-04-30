@@ -257,7 +257,7 @@ def mediumSearch(query,keywords,max_time):
         s_i = sort_idx[i]
         if article["reading_time"] <= max_time:
             scores_tuple = (cos_sims[s_i], weighted_keywords[s_i], med_comment_scores[s_i], medium_sentiment_scores[s_i], claps_arr[s_i])
-            return_arr.append((article["title"][:min(len(article["title"]),77)]+" "+str(sims[sort_idx[i]]), article["link"], ', '.join(article["tags"]), article["claps"], article["reading_time"]))
+            return_arr.append((article["title"][:min(len(article["title"]),77)]+" "+str(sims[sort_idx[i]]), article["link"], ', '.join(article["tags"]), article["claps"], article["reading_time"]),scores_tuple)
             id_arr.append(sort_idx[i])
             num_found+=1
         if num_found == num_results:

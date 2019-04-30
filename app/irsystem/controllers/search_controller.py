@@ -18,15 +18,15 @@ def search():
 	query_keywords = request.args.get('input_keywords')
 	query_maxtime = request.args.get('max_time')
 	query_maxtime = int(query_maxtime) if query_maxtime else 300
-	
+
 	if not query_url:
 		data = []
 		output_message = ""
 	elif query_url and query_type == "article":
 		output_message = "Videos similar to: " + art_url_to_title(query_url)
-		data = youtubeSearch(query_url,query_keywords,query_maxtime)	
+		data = youtubeSearch(query_url,query_keywords,query_maxtime)
 	else:
 		output_message = "Articles similar to: " + vid_url_to_title(query_url)
 		data = mediumSearch(query_url,query_keywords,query_maxtime)
 
-	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=data)
+	return render_template('search.html', name=project_name, netid=net_id, output_message=output_message, data=data, query_keywords=query_keywords)

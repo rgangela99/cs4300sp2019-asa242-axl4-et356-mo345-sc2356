@@ -249,7 +249,7 @@ def mediumSearch(query,keywords,max_time):
     if 'tags' in my_video_info["snippet"].keys():
         for tag in my_video_info["snippet"]["tags"]:
             tags=tag+" "
-            tag_set.add(tag)
+            tag_set.add(tokenize(tag))
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
 
     return_arr = []
@@ -296,7 +296,7 @@ def youtubeSearch(query,keywords,max_time):
         tag_set = set()
         for tag in tags_list:
             tags=tag+" "
-            tag_set.add(tag)
+            tag_set.add(tokenize(tag))
     else:
         tags=""
 

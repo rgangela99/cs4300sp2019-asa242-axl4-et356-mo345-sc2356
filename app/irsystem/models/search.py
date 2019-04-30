@@ -185,11 +185,13 @@ def youtubeKeywords(keywords):
         keyword_arr = keywords.split(",")
     else:
         keyword_arr = [keywords]
-    for vid in yt_id_to_vid_info.keys():
-        if 'tags' in yt_id_to_vid_info[vid].keys():
-            key_calc_arr[i]= len(set(keyword_arr).intersection(set(yt_id_to_vid_info[vid]["tags"])))
+    for index in yt_index_to_id:
+        yt_id = yt_index_to_id[index]
+        vid = yt_id_to_vid_info[yt_id]
+        if 'tags' in vid.keys():
+            key_calc_arr[i]= len(set(keyword_arr).intersection(set(vid["tags"])))
             if key_calc_arr[i] >= 2:
-                print(set(keyword_arr).intersection(set(yt_id_to_vid_info[vid]["tags"])))
+                print(set(keyword_arr).intersection(set(vid["tags"])))
         i+=1
 
     return (key_calc_arr)
@@ -201,7 +203,8 @@ def mediumKeywords(keywords):
         keyword_arr = keywords.split(",")
     else:
         keyword_arr = [keywords]
-    for art in medium_ind_to_art_info.values():
+    for index in medium_ind_to_art_info.keys():
+        art = medium_ind_to_art_info[index]
         if "tags" in art.keys():
             key_calc_arr[i]=len(set(keyword_arr).intersection(set(art["tags"])))
         i+=1
@@ -210,7 +213,9 @@ def mediumKeywords(keywords):
 def youtubeComments(tag_set):
     comment_score_arr = np.zeros(yt_data_len)
     i=0
-    for vid_info in yt_id_to_vid_info.values():
+    for index in yt_index_to_id:
+        yt_id = yt_index_to_id[index]
+        vid_info = yt_id_to_vid_info[yt_id]
         if ("comment_toks" in vid_info.keys()):
             comments = vid_info["comment_toks"]
             comment_score_arr[i] = len(comments.intersection(tag_set))
@@ -220,7 +225,8 @@ def youtubeComments(tag_set):
 def mediumComments(tag_set):
     comment_score_arr = np.zeros(med_data_len)
     i=0
-    for article in medium_ind_to_art_info.values():
+    for index in medium_ind_to_art_info.keys():
+        art = medium_ind_to_art_info[index]
         if ("comment_toks" in article.keys()):
             comments = article["comment_toks"]
             comment_score_arr[i] = len(comments.intersection(tag_set))

@@ -40,6 +40,15 @@ def claps_to_nums(claps):
         num=float(num)
     return num
 
+#weights
+med_comment_weight = 0.01
+yt_comment_weight = 0.01
+keyword_weight = 0.1
+med_sentiment_weight = 0.01
+yt_sentiment_weight = 0.01
+yt_likes_weight = 0.1
+med_claps_weight = 0.1
+
 #building data arrays for Medium article text and YouTube video plus tags
 #for those that have tags
 med_text_tag = []
@@ -85,16 +94,24 @@ with open('./data/SVD-yt-docs.pickle', 'rb') as f:
     svd_yt_docs = pickle.load(f)
 
 #array for YouTube video likes
-yt_likes_weight = 0.1
 with open('./data/likes-array.pickle', 'rb') as f:
     likes_arr = pickle.load(f)
 likes_arr = yt_likes_weight*likes_arr
 
 #array for Medium article claps
-med_claps_weight = 0.1
 with open('./data/claps-array.pickle', 'rb') as f:
     claps_arr = pickle.load(f)
 claps_arr = med_claps_weight*claps_arr
+
+#array for Medium article sentiment scores
+with open('./data/med-sentiment.pickle', 'rb') as f:
+    medium_sentiment_scores = pickle.load(f)
+medium_sentiment_scores = med_sentiment_weight*medium_sentiment_scores
+
+#array for YouTube video sentiment scores
+with open('./data/yt-sentiment.pickle', 'rb') as f:
+    yt_sentiment_scores = pickle.load(f)
+yt_sentiment_scores = yt_sentiment_weight*yt_sentiment_scores
 
 #returns list of cosine similarities of query vector with every document in provided
 #tf-idf matrix [doc_by_vocab]
@@ -220,34 +237,6 @@ def mediumComments(tag_set):
         i+=1
     return comment_score_arr
 
-med_comment_weight = 0.01
-yt_comment_weight = 0.01
-keyword_weight = 0.1
-med_sentiment_weight = 0.01
-yt_sentiment_weight = 0.01
-med_sentiment_cap = 0.03
-yt_sentiment_cap = 0.03
-
-yt_sentiment_scores = []
-
-for k in yt_id_to_vid_info.keys():
-    curr_score = 0
-    if 'sentiments' in yt_id_to_vid_info[k].keys():
-        for comm_sent in yt_id_to_vid_info[k]['sentiments']:
-            curr_score += yt_sentiment_weight * comm_sent['compound']
-    
-    yt_sentiment_scores.append(max(curr_score, yt_sentiment_cap))
-
-medium_sentiment_scores = []
-
-for k in medium_ind_to_art_info.keys():
-    curr_score = 0
-    if 'sentiments' in medium_ind_to_art_info[k].keys():
-        for comm_sent in medium_ind_to_art_info[k]['sentiments']:
-            curr_score += med_sentiment_weight * comm_sent['compound']  
-
-    medium_sentiment_scores.append(max(curr_score, med_sentiment_cap))
-
 #search function from YouTube video to Medium article
 def mediumSearch(query,keywords,max_time):
     num_results = 10
@@ -260,7 +249,7 @@ def mediumSearch(query,keywords,max_time):
     if 'tags' in my_video_info["snippet"].keys():
         for tag in my_video_info["snippet"]["tags"]:
             tags=tag+" "
-            tag_set.add(tag)
+            tag_set.add(tokenize(tag))
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
 
     return_arr = []
@@ -307,7 +296,7 @@ def youtubeSearch(query,keywords,max_time):
         tag_set = set()
         for tag in tags_list:
             tags=tag+" "
-            tag_set.add(tag)
+            tag_set.add(tokenize(tag))
     else:
         tags=""
 
@@ -330,8 +319,6 @@ def youtubeSearch(query,keywords,max_time):
             num_found += 1
         if num_found == num_results:
             break
-
-
     return return_arr
     
 def getLink(query):

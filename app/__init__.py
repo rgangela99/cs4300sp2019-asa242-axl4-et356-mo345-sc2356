@@ -30,3 +30,12 @@ socketio.init_app(app)
 @app.errorhandler(404)
 def not_found(error):
   return render_template("404.html"), 404
+
+# Add route for about and search pages
+@app.route('/')
+def search_home():
+    return render_template("search.html",name="MediaFlip", netid="Anjelika Lynne Amog (asa242), Angela Liu (axl4), Emily Tentarelli (et356), Michelle O'Bryan (mo345), Sourabh Chakraborty (sc2356)", output_message="", data=[])
+
+@app.route('/about')
+def about_page():
+    return render_template("about.html")

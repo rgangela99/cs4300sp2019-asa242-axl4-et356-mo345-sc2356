@@ -84,6 +84,18 @@ with open('./data/SVD-med-docs.pickle', 'rb') as f:
 with open('./data/SVD-yt-docs.pickle', 'rb') as f:
     svd_yt_docs = pickle.load(f)
 
+#array for YouTube video likes
+yt_likes_weight = 0.1
+with open('./data/likes-array.pickle', 'rb') as f:
+    likes_arr = pickle.load(f)
+likes_arr = yt_likes_weight*likes_arr
+
+#array for Medium article claps
+med_claps_weight = 0.1
+with open('./data/claps-array.pickle', 'rb') as f:
+    claps_arr = pickle.load(f)
+claps_arr = med_claps_weight*claps_arr
+
 #returns list of cosine similarities of query vector with every document in provided
 #tf-idf matrix [doc_by_vocab]
 def cosine_sim(vec1,doc_by_vocab):
@@ -176,41 +188,41 @@ def mediumKeywords(keywords):
         i+=1
     return (key_calc_arr)
 
-def youtubeComments():
-    comment_score_arr = np.zeros(len(yt_index_to_id))
+def youtubeComments(tag_set):
+    comment_score_arr = np.zeros(yt_data_len)
     i=0
     for vid_info in yt_id_to_vid_info.values():
-        has_comments = ("comment_toks" in vid_info.keys())
-        has_tags = ("tags" in vid_info.keys())
-        if (has_comments and has_tags):
+        # has_comments = ("comment_toks" in vid_info.keys())
+        # has_tags = ("tags" in vid_info.keys())
+        # if (has_comments and has_tags):
+        #     comments = vid_info["comment_toks"]
+        #     tags = vid_info["tags"]
+        #     comment_score_arr[i] = len(comments & tags)
+        if ("comment_toks" in vid_info.keys()):
             comments = vid_info["comment_toks"]
-            tags = vid_info["tags"]
-            comment_score_arr[i] = len(comments & tags)
+            comment_score_arr = len(comments & tag_set)
         i+=1
     return comment_score_arr
 
-
-def mediumComments():
-    comment_score_arr = np.zeros(len(medium_ind_to_art_info))
+def mediumComments(tag_set):
+    comment_score_arr = np.zeros(med_data_len)
     i=0
     for article in medium_ind_to_art_info.values():
-        has_comments = ("comment_toks" in article.keys())
-        has_tags = ("tags" in article.keys())
-        if (has_comments and has_tags):
+        # has_comments = ("comment_toks" in article.keys())
+        # has_tags = ("tags" in article.keys())
+        # if (has_comments and has_tags):
+        #     comments = article["comment_toks"]
+        #     tags = article["tags"]
+        #     comment_score_arr[i] = len(comments & tags)
+        if ("comment_toks" in article.keys()):
             comments = article["comment_toks"]
-            tags = article["tags"]
-            comment_score_arr[i] = len(comments & tags)
+            comment_score_arr[i] = len(comments & tag_set)
         i+=1
     return comment_score_arr
 
 med_comment_weight = 0.01
 yt_comment_weight = 0.01
 keyword_weight = 0.1
-
-#YouTube video comment scores
-yt_comment_scores = yt_comment_weight*youtubeComments()
-#Medium article comment scores
-med_comment_scores = med_comment_weight*mediumComments()
 
 #search function from YouTube video to Medium article
 def mediumSearch(query,keywords,max_time):
@@ -220,16 +232,18 @@ def mediumSearch(query,keywords,max_time):
     my_video_info = api_response['items'][0]
     my_title = my_video_info['snippet']['title']
     tags=" "
+    tag_set = set()
     if 'tags' in my_video_info["snippet"].keys():
         for tag in my_video_info["snippet"]["tags"]:
             tags=tag+" "
-
+            tag_set.add(tag)
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
 
     return_arr = []
     
     svd_query = svd_med.transform(query_vec)
     weighted_keywords = keyword_weight*mediumKeywords(keywords)
+    med_comment_scores = med_comment_weight*mediumComments(tag_set)
     sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
@@ -265,8 +279,10 @@ def youtubeSearch(query,keywords,max_time):
     if tags:
         tags_list = {t.findAll('a')[0].get_text().lower() for t in tags[0]}
         tags=" "
+        tag_set = set()
         for tag in tags_list:
-        	tags=tag+" "
+            tags=tag+" "
+            tag_set.add(tag)
     else:
         tags=""
 
@@ -274,6 +290,7 @@ def youtubeSearch(query,keywords,max_time):
     return_arr= []
     svd_query = svd_yt.transform(query_vec)
     weighted_keywords = keyword_weight*youtubeKeywords(keywords)
+    yt_comment_scores = yt_comment_weight*youtubeComments(tag_set)
     sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()+weighted_keywords+yt_comment_scores
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []

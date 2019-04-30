@@ -43,7 +43,7 @@ def claps_to_nums(claps):
 #weights
 med_comment_weight = 0.01
 yt_comment_weight = 0.01
-keyword_weight = 0.1
+keyword_weight = 0.3
 med_sentiment_weight = 0.01
 yt_sentiment_weight = 0.01
 yt_likes_weight = 0.1
@@ -249,7 +249,7 @@ def mediumSearch(query,keywords,max_time):
     if 'tags' in my_video_info["snippet"].keys():
         for tag in my_video_info["snippet"]["tags"]:
             tags=tag+" "
-            tag_set.add(tokenize(tag))
+        tag_set.update(tokenize(tags))
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
 
     return_arr = []
@@ -266,7 +266,7 @@ def mediumSearch(query,keywords,max_time):
     for i in range(0,n):
         article = medium_ind_to_art_info[sort_idx[i]]
         if article["reading_time"] <= max_time:
-            return_arr.append((article["title"][:min(len(article["title"]),77)], article["link"], ', '.join(article["tags"]), article["claps"], article["reading_time"],str(sims[sort_idx[i]])))
+            return_arr.append((article["title"][:min(len(article["title"]),77)]+" "+str(sims[sort_idx[i]]), article["link"], ', '.join(article["tags"]), article["claps"], article["reading_time"]))
             id_arr.append(sort_idx[i])
             num_found+=1
         if num_found == num_results:
@@ -296,7 +296,7 @@ def youtubeSearch(query,keywords,max_time):
         tag_set = set()
         for tag in tags_list:
             tags=tag+" "
-            tag_set.add(tokenize(tag))
+        tag_set.update(tokenize(tags))
     else:
         tags=""
 
@@ -314,7 +314,7 @@ def youtubeSearch(query,keywords,max_time):
     for i in range(0,n):
         curr_id = yt_index_to_id[sort_idx[i]]
         if yt_id_to_length[curr_id] <= max_time:
-            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)],"https://www.youtube.com/watch?v="+curr_id, ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id]),str(sims[sort_idx[i]])))
+            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])))
             id_arr.append(curr_id)
             num_found += 1
         if num_found == num_results:

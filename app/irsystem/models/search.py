@@ -248,7 +248,6 @@ for k in medium_ind_to_art_info.keys():
 
     medium_sentiment_scores.append(max(curr_score, med_sentiment_cap))
 
->>>>>>> 2c58e9ca607c000f4fe97f31844c5dd8a4e33467
 #search function from YouTube video to Medium article
 def mediumSearch(query,keywords,max_time):
     num_results = 10

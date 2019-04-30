@@ -245,7 +245,8 @@ def mediumSearch(query,keywords,max_time):
     svd_query = svd_med.transform(query_vec)
     weighted_keywords = keyword_weight*mediumKeywords(keywords)
     med_comment_scores = med_comment_weight*mediumComments(tag_set)
-    sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores+medium_sentiment_scores+claps_arr
+    cos_sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()
+    sims = cos_sims+weighted_keywords+med_comment_scores+medium_sentiment_scores+claps_arr
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
     
@@ -253,7 +254,9 @@ def mediumSearch(query,keywords,max_time):
     n = len(sort_idx)
     for i in range(0,n):
         article = medium_ind_to_art_info[sort_idx[i]]
+        s_i = sort_idx[i]
         if article["reading_time"] <= max_time:
+            scores_tuple = (cos_sims[s_i], weighted_keywords[s_i], med_comment_scores[s_i], medium_sentiment_scores[s_i], claps_arr[s_i])
             return_arr.append((article["title"][:min(len(article["title"]),77)]+" "+str(sims[sort_idx[i]]), article["link"], ', '.join(article["tags"]), article["claps"], article["reading_time"]))
             id_arr.append(sort_idx[i])
             num_found+=1
@@ -293,7 +296,8 @@ def youtubeSearch(query,keywords,max_time):
     svd_query = svd_yt.transform(query_vec)
     weighted_keywords = keyword_weight*youtubeKeywords(keywords)
     yt_comment_scores = yt_comment_weight*youtubeComments(tag_set)
-    sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()+weighted_keywords+yt_comment_scores+yt_sentiment_scores+likes_arr
+    cos_sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()
+    sims = cos_sims+weighted_keywords+yt_comment_scores+yt_sentiment_scores+likes_arr
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
 
@@ -301,8 +305,10 @@ def youtubeSearch(query,keywords,max_time):
     n = len(sort_idx)
     for i in range(0,n):
         curr_id = yt_index_to_id[sort_idx[i]]
+        s_i = sort_idx[i]
         if yt_id_to_length[curr_id] <= max_time:
-            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])))
+            scores_tuple = (cos_sims[s_i], weighted_keywords[s_i], yt_comment_scores[s_i], yt_sentiment_scores[s_i], likes_arr[s_i])
+            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])),scores_tuple)
             id_arr.append(curr_id)
             num_found += 1
         if num_found == num_results:

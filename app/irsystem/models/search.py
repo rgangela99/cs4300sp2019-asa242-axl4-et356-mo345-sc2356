@@ -44,8 +44,8 @@ def claps_to_nums(claps):
 med_comment_weight = 0.01
 yt_comment_weight = 0.01
 keyword_weight = 0.3
-med_sentiment_weight = 0.001
-yt_sentiment_weight = 0.001
+med_sentiment_weight = 0.1
+yt_sentiment_weight = 0.1
 yt_likes_weight = 0.1
 med_claps_weight = 0.1
 
@@ -187,7 +187,9 @@ def youtubeKeywords(keywords):
         keyword_arr = [keywords]
     for vid in yt_id_to_vid_info.keys():
         if 'tags' in yt_id_to_vid_info[vid].keys():
-            key_calc_arr[i]=len(yt_id_to_vid_info[vid]["tags"] & set(keyword_arr))
+            key_calc_arr[i]= len(set(keyword_arr).intersection(set(yt_id_to_vid_info[vid]["tags"])))
+            if key_calc_arr[i] >= 2:
+                print(set(keyword_arr).intersection(set(yt_id_to_vid_info[vid]["tags"])))
         i+=1
 
     return (key_calc_arr)
@@ -201,7 +203,7 @@ def mediumKeywords(keywords):
         keyword_arr = [keywords]
     for art in medium_ind_to_art_info.values():
         if "tags" in art.keys():
-            key_calc_arr[i]=len(art["tags"] & set(keyword_arr))
+            key_calc_arr[i]=len(set(keyword_arr).intersection(set(art["tags"])))
         i+=1
     return (key_calc_arr)
 
@@ -211,7 +213,7 @@ def youtubeComments(tag_set):
     for vid_info in yt_id_to_vid_info.values():
         if ("comment_toks" in vid_info.keys()):
             comments = vid_info["comment_toks"]
-            comment_score_arr[i] = len(comments & tag_set)
+            comment_score_arr[i] = len(comments.intersection(tag_set))
         i+=1
     return comment_score_arr
 
@@ -221,7 +223,7 @@ def mediumComments(tag_set):
     for article in medium_ind_to_art_info.values():
         if ("comment_toks" in article.keys()):
             comments = article["comment_toks"]
-            comment_score_arr[i] = len(comments & tag_set)
+            comment_score_arr[i] = len(comments.intersection(tag_set))
         i+=1
     return comment_score_arr
 
@@ -256,8 +258,8 @@ def mediumSearch(query,keywords,max_time):
         article = medium_ind_to_art_info[sort_idx[i]]
         s_i = sort_idx[i]
         if article["reading_time"] <= max_time:
-            scores_tuple = (cos_sims[s_i][0], weighted_keywords[s_i], med_comment_scores[s_i], medium_sentiment_scores[s_i], claps_arr[s_i])
-            return_arr.append((article["title"][:min(len(article["title"]),77)]+" "+str(sims[sort_idx[i]]), 
+            scores_tuple = (sims[s_i][0], cos_sims[s_i][0], weighted_keywords[s_i], med_comment_scores[s_i], medium_sentiment_scores[s_i], claps_arr[s_i])
+            return_arr.append((article["title"][:min(len(article["title"]),77)], 
                                 article["link"], ', '.join(article["tags"]), 
                                 article["claps"], 
                                 article["reading_time"],
@@ -311,8 +313,9 @@ def youtubeSearch(query,keywords,max_time):
         curr_id = yt_index_to_id[sort_idx[i]]
         s_i = sort_idx[i]
         if yt_id_to_length[curr_id] <= max_time:
-            scores_tuple = (cos_sims[s_i][0], weighted_keywords[s_i], yt_comment_scores[s_i], yt_sentiment_scores[s_i], likes_arr[s_i])
-            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)]+" "+str(sims[sort_idx[i]]),
+            print(weighted_keywords[s_i])
+            scores_tuple = (sims[s_i][0], cos_sims[s_i][0], weighted_keywords[s_i], yt_comment_scores[s_i], yt_sentiment_scores[s_i], likes_arr[s_i])
+            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)],
                                 "https://www.youtube.com/watch?v="+curr_id, 
                                 ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", 
                                 yt_id_to_vid_info[curr_id]["likes"], 

@@ -1,6 +1,6 @@
 @media (min-width: 1200px) {
 .container {
-    max-width: 970px;
+    max-width: 100%;
 }
 }
 @media (min-width:400px){
@@ -34,13 +34,24 @@ text-decoration: none;
 text-color: black;
 }
 .topcorner-right{
-position:absolute;
+position: absolute;
 top:3%;
 right:3%;
 font-family: 'Assistant';
 font-size: 25px;
 text-decoration: none;
 text-color: black;
+margin-left: 20px;
+}
+.bottomcorner{
+position:relative;
+bottom:0;
+left:0;
+font-family: 'Assistant';
+font-size: 10px;
+text-decoration: none;
+text-color: black;
+text-align: center;
 }
 .search_bar{
   display: inline;
@@ -115,6 +126,11 @@ color: #4285F4;
   display: inherit;
   width: 100%;
 }
+.similarity_symbol{
+  float: left;
+  display: inherit;
+  width: 100%;
+}
 .bottom-info-bar{
   bottom:0;
 }
@@ -131,6 +147,13 @@ color: #4285F4;
   display: block;
   margin: 100px;
   font-family: 'Assistant';
+}
+#medium_link{
+  height: 40px;
+}
+#youtube_link{
+  height: 40px;
+  margin-left: 10px;
 }
 #subtitle{
   display: block;
@@ -226,4 +249,7 @@ option{
 }
 option:focus{
   outline: none;
+}
+p{
+  font-family: 'Assistant';
 }

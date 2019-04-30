@@ -226,13 +226,6 @@ keyword_weight = 0.1
 med_sentiment_weight = 0.01
 yt_sentiment_weight = 0.01
 
-<<<<<<< HEAD
-=======
-#YouTube video comment scores
-yt_comment_scores = yt_comment_weight*youtubeComments()
-#Medium article comment scores
-med_comment_scores = med_comment_weight*mediumComments()
-
 yt_sentiment_scores = []
 
 for k in yt_id_to_vid_info.keys():

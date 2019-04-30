@@ -67,8 +67,10 @@ color: #4285F4;
   margin-top: 10px;
   padding: 10px;
   float: left;
-  font-size: 18px !important;
+  font-size: 20px !important;
   background-color: #f2f2f2;
+  font-family: 'Assistant';
+  text-decoration: none;
   /*border-bottom: dashed;
   border-width: thin;*/
 }
@@ -153,6 +155,7 @@ color: #4285F4;
   font-size: 25px;
   border-bottom: solid;
   border-width: thin;
+  font-family: 'Assistant'
 }
 #results_area{
   margin-left: 50px;
@@ -160,18 +163,28 @@ color: #4285F4;
   margin-top: 10px;
   margin-bottom: 10px;
 }
+#keywords_searched{
+  text-align:left !important;
+  font-size: 20px;
+  font-family: 'Assistant'
+}
 a:visited{
   text-decoration: none;
 }
-footer {
-  position: static;
-  left: 0px;
-  bottom: 0px;
+.footer {
+  /*position: fixed;
+  top: 10px;
+  bottom: 10px;
+  height: 20px;
   width: 100%;
   text-align: center;
-  font-size: 10px;;
-  right: 50%
-  font-family: 'Assistant'
+  font-size: 10px;
+  right: 50%;
+  font-family: 'Assistant';
+  display: block;*/
+  left:0;
+  bottom:0;
+  width:100%
 }
 input[type=text]{
   width: 15%;

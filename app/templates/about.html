@@ -23,29 +23,29 @@
         <br>
         <h3>Flipping Media</h3>
         <p>MediaFlip is designed to help you learn something new by swapping the type of media. Enter in a Medium article link and select "Medium
-          article to Youtube Video" from the dropdown menu. This will return the top 10 most similar Youtube videos for you to watch.
-          Or enter in a Youtube video link and select "Youtube video to Medium Article" from the dropdown menu. This will return the top
+          Article to YouTube Video" from the dropdown menu. This will return the top 10 most similar YouTube videos for you to watch.
+          Or enter in a YouTube video link and select "YouTube Video to Medium Article" from the dropdown menu. This will return the top
            10 most similar Medium articles for you to read.</p>
         <br>
         <h3>Added Features</h3>
-        <p>In addition to providing a Youtube/Medium link you can also provide keywords. Enter terms into the keyword box separated by
+        <p>In addition to providing a YouTube/Medium link, you can also provide keywords. Enter terms into the keyword box separated by
            commas and no spaces. This will search for videos/articles most similar to the link you entered but will also take the keywords
            into account. This feature is useful if you are interested in changing up the topics you are learning about or want to further
            improve the returned search results.
-           You can also provide how much time you want to spend watching or reading the media. This will return similar results that
+           You can also provide the maximum amount of time you want to spend watching a single video or reading a single article. This will return similar results that
            also take into account how much time you have and returns videos/articles relative to your time constraints.</p>
         <br>
         <h3>About the Data</h3>
         <p>The Medium dataset is based on popular Medium articles. Because Medium is known for providing Technology articles,
-           Youtube to Medium swaps work best for technology videos.
+           YouTube to Medium swaps work best for technology videos.
 
-           The Youtube dataset is mostly sourced from popular learning channels and recommended documentaries, however there
-           are some Comedy videos that are also included in the dataset. The results for Medium to Youtube swaps work best with
+           The YouTube dataset is mostly sourced from popular learning channels and recommended documentaries, however there
+           are some Comedy videos that are also included in the dataset. The results for Medium to YouTube swaps work best with
            concrete topics including technology.</p>
         <br>
         <h3>How it Works</h3>
-        <p>Our algorithm uses Singular Value Decomposition to determine the videos/articles that are most similar
-             to the link provided. In addition there are a variety of other factors are added in as partial weights
+        <p>Our algorithm uses Singular Value Decomposition to determine the videos/articles that are most similar by topic
+             to the link provided. In addition there are a variety of other factors added in as partial weights
              to the similarity score. The number of likes/claps are used to ensure that the returned results are fairly
              popular. The comments on videos and articles are used to determine whether or not the discussions match the
              topics of a link. There is also sentiment analysis done to determine whether the comments are reacting positively

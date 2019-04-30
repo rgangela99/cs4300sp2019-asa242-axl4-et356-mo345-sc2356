@@ -211,7 +211,7 @@ def youtubeComments(tag_set):
     for vid_info in yt_id_to_vid_info.values():
         if ("comment_toks" in vid_info.keys()):
             comments = vid_info["comment_toks"]
-            comment_score_arr = len(comments & tag_set)
+            comment_score_arr[i] = len(comments & tag_set)
         i+=1
     return comment_score_arr
 
@@ -256,8 +256,12 @@ def mediumSearch(query,keywords,max_time):
         article = medium_ind_to_art_info[sort_idx[i]]
         s_i = sort_idx[i]
         if article["reading_time"] <= max_time:
-            scores_tuple = (cos_sims[s_i], weighted_keywords[s_i], med_comment_scores[s_i], medium_sentiment_scores[s_i], claps_arr[s_i])
-            return_arr.append((article["title"][:min(len(article["title"]),77)]+" "+str(sims[sort_idx[i]]), article["link"], ', '.join(article["tags"]), article["claps"], article["reading_time"]),scores_tuple)
+            scores_tuple = (cos_sims[s_i][0], weighted_keywords[s_i], med_comment_scores[s_i], medium_sentiment_scores[s_i], claps_arr[s_i])
+            return_arr.append((article["title"][:min(len(article["title"]),77)]+" "+str(sims[sort_idx[i]]), 
+                                article["link"], ', '.join(article["tags"]), 
+                                article["claps"], 
+                                article["reading_time"],
+                                scores_tuple))
             id_arr.append(sort_idx[i])
             num_found+=1
         if num_found == num_results:
@@ -307,8 +311,13 @@ def youtubeSearch(query,keywords,max_time):
         curr_id = yt_index_to_id[sort_idx[i]]
         s_i = sort_idx[i]
         if yt_id_to_length[curr_id] <= max_time:
-            scores_tuple = (cos_sims[s_i], weighted_keywords[s_i], yt_comment_scores[s_i], yt_sentiment_scores[s_i], likes_arr[s_i])
-            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)]+" "+str(sims[sort_idx[i]]),"https://www.youtube.com/watch?v="+curr_id, ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", yt_id_to_vid_info[curr_id]["likes"], round(yt_id_to_length[curr_id])),scores_tuple)
+            scores_tuple = (cos_sims[s_i][0], weighted_keywords[s_i], yt_comment_scores[s_i], yt_sentiment_scores[s_i], likes_arr[s_i])
+            return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)]+" "+str(sims[sort_idx[i]]),
+                                "https://www.youtube.com/watch?v="+curr_id, 
+                                ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", 
+                                yt_id_to_vid_info[curr_id]["likes"], 
+                                round(yt_id_to_length[curr_id]),
+                                scores_tuple))
             id_arr.append(curr_id)
             num_found += 1
         if num_found == num_results:

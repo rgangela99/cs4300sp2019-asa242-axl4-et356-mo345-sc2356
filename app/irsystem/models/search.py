@@ -226,7 +226,7 @@ def mediumComments(tag_set):
     comment_score_arr = np.zeros(med_data_len)
     i=0
     for index in medium_ind_to_art_info.keys():
-        art = medium_ind_to_art_info[index]
+        article = medium_ind_to_art_info[index]
         if ("comment_toks" in article.keys()):
             comments = article["comment_toks"]
             comment_score_arr[i] = len(comments.intersection(tag_set))
@@ -293,10 +293,10 @@ def youtubeSearch(query,keywords,max_time):
     title = title.get_text()
 
     tags = soup.findAll('ul', 'tags')
+    tag_set = set()
     if tags:
         tags_list = {t.findAll('a')[0].get_text().lower() for t in tags[0]}
         tags=" "
-        tag_set = set()
         for tag in tags_list:
             tags=tag+" "
         tag_set.update(tokenize(tags))

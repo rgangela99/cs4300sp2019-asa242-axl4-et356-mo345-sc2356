@@ -209,12 +209,6 @@ def youtubeComments(tag_set):
     comment_score_arr = np.zeros(yt_data_len)
     i=0
     for vid_info in yt_id_to_vid_info.values():
-        # has_comments = ("comment_toks" in vid_info.keys())
-        # has_tags = ("tags" in vid_info.keys())
-        # if (has_comments and has_tags):
-        #     comments = vid_info["comment_toks"]
-        #     tags = vid_info["tags"]
-        #     comment_score_arr[i] = len(comments & tags)
         if ("comment_toks" in vid_info.keys()):
             comments = vid_info["comment_toks"]
             comment_score_arr = len(comments & tag_set)
@@ -225,12 +219,6 @@ def mediumComments(tag_set):
     comment_score_arr = np.zeros(med_data_len)
     i=0
     for article in medium_ind_to_art_info.values():
-        # has_comments = ("comment_toks" in article.keys())
-        # has_tags = ("tags" in article.keys())
-        # if (has_comments and has_tags):
-        #     comments = article["comment_toks"]
-        #     tags = article["tags"]
-        #     comment_score_arr[i] = len(comments & tags)
         if ("comment_toks" in article.keys()):
             comments = article["comment_toks"]
             comment_score_arr[i] = len(comments & tag_set)
@@ -257,7 +245,7 @@ def mediumSearch(query,keywords,max_time):
     svd_query = svd_med.transform(query_vec)
     weighted_keywords = keyword_weight*mediumKeywords(keywords)
     med_comment_scores = med_comment_weight*mediumComments(tag_set)
-    sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores+medium_sentiment_scores
+    sims = np.array(cosine_sim(svd_query, svd_med_docs)).flatten()+weighted_keywords+med_comment_scores+medium_sentiment_scores+claps_arr
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
     
@@ -305,7 +293,7 @@ def youtubeSearch(query,keywords,max_time):
     svd_query = svd_yt.transform(query_vec)
     weighted_keywords = keyword_weight*youtubeKeywords(keywords)
     yt_comment_scores = yt_comment_weight*youtubeComments(tag_set)
-    sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()+weighted_keywords+yt_comment_scores+yt_sentiment_scores
+    sims = np.array(cosine_sim(svd_query,svd_yt_docs)).flatten()+weighted_keywords+yt_comment_scores+yt_sentiment_scores+likes_arr
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
 

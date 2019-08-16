@@ -249,7 +249,7 @@ def mediumSearch(query,keywords,max_time):
     query_vec = tfidf_vec.transform([my_title + tags]).toarray()
 
     return_arr = []
-    
+
     svd_query = svd_med.transform(query_vec)
     weighted_keywords = keyword_weight*mediumKeywords(keywords)
     med_comment_scores = med_comment_weight*mediumComments(tag_set)
@@ -257,7 +257,7 @@ def mediumSearch(query,keywords,max_time):
     sims = cos_sims+weighted_keywords+med_comment_scores+medium_sentiment_scores+claps_arr
     sort_idx = np.flip(np.argsort(sims))
     id_arr = []
-    
+
     num_found = 0
     n = len(sort_idx)
     for i in range(0,n):
@@ -265,9 +265,9 @@ def mediumSearch(query,keywords,max_time):
         s_i = sort_idx[i]
         if article["reading_time"] <= max_time:
             scores_tuple = (sims[s_i][0], cos_sims[s_i][0], weighted_keywords[s_i], med_comment_scores[s_i], medium_sentiment_scores[s_i], claps_arr[s_i])
-            return_arr.append((article["title"][:min(len(article["title"]),77)], 
-                                article["link"], ', '.join(article["tags"]), 
-                                article["claps"], 
+            return_arr.append((article["title"][:min(len(article["title"]),77)],
+                                article["link"], ', '.join(article["tags"]),
+                                article["claps"],
                                 article["reading_time"],
                                 scores_tuple))
             id_arr.append(sort_idx[i])
@@ -286,12 +286,9 @@ def youtubeSearch(query,keywords,max_time):
     text = ''
     nxt_line = '\n'
     for para in paras:
-        text += unicodedata.normalize('NFKD',
-                                        para.get_text()) + nxt_line
-    
+        text += unicodedata.normalize('NFKD', para.get_text()) + nxt_line
     title = soup.findAll('title')[0]
     title = title.get_text()
-
     tags = soup.findAll('ul', 'tags')
     tag_set = set()
     if tags:
@@ -320,19 +317,26 @@ def youtubeSearch(query,keywords,max_time):
         s_i = sort_idx[i]
         if yt_id_to_length[curr_id] <= max_time:
             print(weighted_keywords[s_i])
-            scores_tuple = (sims[s_i][0], cos_sims[s_i][0], weighted_keywords[s_i], yt_comment_scores[s_i], yt_sentiment_scores[s_i], likes_arr[s_i])
+            scores_tuple = (
+                sims[s_i][0],
+                cos_sims[s_i][0],
+                weighted_keywords[s_i],
+                yt_comment_scores[s_i],
+                yt_sentiment_scores[s_i],
+                likes_arr[s_i]
+            )
             return_arr.append((yt_id_to_vid_info[curr_id]["title"][:min(len(yt_id_to_vid_info[curr_id]["title"]),77)],
-                                "https://www.youtube.com/watch?v="+curr_id, 
-                                ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "", 
-                                yt_id_to_vid_info[curr_id]["likes"], 
-                                round(yt_id_to_length[curr_id]),
-                                scores_tuple))
+                "https://www.youtube.com/watch?v="+curr_id,
+                ', '.join(yt_id_to_vid_info[curr_id]["tags"]) if "tags" in yt_id_to_vid_info[curr_id] else "",
+                yt_id_to_vid_info[curr_id]["likes"],
+                round(yt_id_to_length[curr_id]),
+                scores_tuple))
             id_arr.append(curr_id)
             num_found += 1
         if num_found == num_results:
             break
     return return_arr
-    
+
 def getLink(query):
     if(query == ""):
         return 0
